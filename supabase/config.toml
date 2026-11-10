@@ -1,0 +1,5 @@
+project_id = "veil"
+
+# The gate authenticates callers itself (NEP-413 signature -> HMAC token), so Supabase's JWT check is switched off for it.
+[functions.blob-gate]
+verify_jwt = false
