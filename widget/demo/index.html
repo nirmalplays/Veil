@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Harbor &amp; Finch LLP (demo site)</title>
+<style>
+  body{margin:0;font:17px/1.55 Georgia,serif;color:#1d2433;background:#fbf9f4}
+  header{padding:22px 8vw;border-bottom:1px solid #ddd6c6;display:flex;justify-content:space-between;align-items:baseline}
+  header b{font-size:24px;letter-spacing:.02em} nav a{margin-left:22px;color:#4a5568;text-decoration:none}
+  main{padding:56px 8vw;max-width:900px} h1{font-size:40px;line-height:1.15;margin:0 0 14px} .lead{font-size:20px;color:#3d4a5c}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:32px 0}
+  .card{background:#fff;border:1px solid #e3dccb;padding:18px;border-radius:6px} .card h3{margin:0 0 6px}
+  .demo{font:13px system-ui;background:#fff3cd;border:1px solid #e6d28a;padding:8px 12px;border-radius:6px;margin-bottom:24px}
+</style>
+</head>
+<body>
+<header><b>Harbor &amp; Finch LLP</b><nav><a href="#">Practice areas</a><a href="#">Attorneys</a><a href="#">Contact</a></nav></header>
+<main>
+  <div class="demo">Demo site. Harbor &amp; Finch is fictional. This page only hosts the Veil widget (bottom right).</div>
+  <h1>Clear counsel for employees, tenants and small businesses.</h1>
+  <p class="lead">Ask our assistant about what we do and request a consultation. Your messages are encrypted in your browser, and even we cannot read them.</p>
+  <div class="cards">
+    <div class="card"><h3>Employment</h3>Termination, discrimination, wage disputes.</div>
+    <div class="card"><h3>Tenant rights</h3>Deposits, repairs, eviction notices.</div>
+    <div class="card"><h3>Business contracts</h3>Reviews, disputes, formation.</div>
+  </div>
+</main>
+<script>/* demo only: ?relay=http://localhost:8791 points the widget at another relay */const r=new URLSearchParams(location.search).get("relay");if(r)window.__relay=r;</script>
+<script type="module" src="/src/widget.ts" data-relay="http://localhost:8790" data-accent="#1f3a5f"></script>
+</body>
+</html>
