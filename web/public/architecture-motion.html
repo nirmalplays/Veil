@@ -1,0 +1,68 @@
+<!doctype html><html><head><meta charset="utf-8"><title>Veil architecture, in motion</title>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400..800&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400..600&display=swap" rel="stylesheet">
+<style>html,body{margin:0;background:#09101F}svg{display:block;width:100vw;height:100vh;max-width:1280px;max-height:720px;margin:auto}
+.d{font-family:"Bricolage Grotesque",sans-serif}.s{font-family:"Newsreader",serif}.m{font-family:"JetBrains Mono",monospace}</style></head>
+<body><svg id="v" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg"></svg>
+<script>
+const TAPE="#F2C91D", BLUE="#6C8CFF", GREEN="#35C28A", INK="#101A33", TXT="#E6ECFA", DIM="#9FB1D6";
+const N={browser:{x:40,y:190,w:330,h:300,t:"Your browser",p:1},tee:{x:900,y:40,w:340,h:130,t:"NEAR AI Cloud (TEE)",p:1},
+ chain:{x:900,y:205,w:340,h:240,t:"NEAR smart contract",p:0},blob:{x:470,y:545,w:320,h:125,t:"Blob store",p:0},owner:{x:900,y:490,w:340,h:180,t:"Model owner",p:1}};
+const P={bro:[370,300],broB:[300,490],broT:[370,230],tee:[900,105],chain:[900,300],chainB:[1070,445],blob:[630,545],blobR:[790,607],owner:[900,580],ownerT:[1070,490]};
+const CAP=[[0,5,"You chat","Your prompt goes to the model's enclave, encrypted to a key the app has checked against the attestation."],
+[5,10,"Seal and save","Storage gets ciphertext. The chain gets only a hash. The key stays with you."],
+[10,15,"Grant consent","Consent is your session key, wrapped to the model owner's public key, with an expiry."],
+[15,21,"The model owner reads","They open only this session, score it for relevance, and anchor the round's Merkle root."],
+[21,26,"Anyone can verify","You check that your session is a leaf of the root recorded on NEAR."],
+[26,31,"Revoke","Future rounds exclude it and the wrapped key is deleted. What was already read can't be unread."]];
+// packets: [t0,t1,from,to,label,kind,curve]
+const PK=[[0.8,2.4,P.bro,P.tee,"encrypted prompt","c",-60],[3.0,4.6,P.tee,P.bro,"signed reply","c",60],
+[6.4,8.0,P.broB,P.blob,"sealed session","c",40],[6.6,8.2,P.bro,P.chain,"hash","c",-10],
+[11.6,13.2,P.bro,P.chain,"wrapped key + expiry","c",-10],
+[15.6,17.0,P.chain,P.owner,"wrapped key","c",-50],[15.8,17.0,P.blobR,[900,625],"ciphertext","c",20],
+[19.0,20.4,P.owner,P.chain,"score + attestation hash","c",-30],[19.4,20.6,[940,500],[960,445],"Merkle root","c",0],
+[22.0,23.6,P.chain,P.bro,"inclusion proof","g",60]];
+const CH=[ // [t0,t1,node,dx,dy,label,kind,w]
+[0.2,6.0,"browser",20,70,"Draft the settlement terms…","p",290],[6.0,31,"browser",20,70,"9c41e0b7a2f5d8…ciphertext","c",290],
+[7.2,31,"browser",20,122,"hash a9f3c1…07be","c",290],[10.6,13.2,"browser",20,174,"wrapped key 4f1a…","c",290],
+[2.4,3.0,"tee",20,70,"model runs here, sealed","p",300],
+[8.0,31,"blob",20,70,"ciphertext 9c41e0b7…","c",280],
+[8.2,31,"chain",20,52,"session a9f3…07be","c",300],[13.2,27.8,"chain",20,98,"consent: model-1, 7 days, key 4f1a…","c",300],
+[20.4,31,"chain",20,144,"score 85, attestation hash","c",300],[20.6,31,"chain",20,190,"round root c2b7…91","c",300],
+[16.8,17.5,"owner",20,70,"ciphertext + wrapped key","c",300],[17.5,28.6,"owner",20,70,"plaintext, this session only","p",300],
+[18.4,28.4,"owner",20,118,"score: 85","g",140],[23.8,26,"browser",20,226,"Included in round c2b7…91","g",290]];
+const e=(x)=>x<0?0:x>1?1:x*x*(3-2*x), q=(t,a,b)=>e((t-a)/(b-a));
+const fill={p:"#3a3208",c:"#142450",g:"#0f3a2b"}, stroke={p:TAPE,c:BLUE,g:GREEN};
+function chip(x,y,w,label,k,a,sc=1){return `<g opacity="${a}" transform="translate(${x} ${y}) scale(${sc})"><rect width="${w}" height="36" rx="5" fill="${fill[k]}" stroke="${stroke[k]}" stroke-width="1.5"/><text x="12" y="23" class="m" font-size="13" fill="${TXT}">${label}</text></g>`}
+function render(t){
+ let s=`<rect width="1280" height="720" fill="#09101F"/>`;
+ // caption
+ for(const [a,b,h,sub] of CAP){const o=Math.min(q(t,a,a+.5),1-q(t,b-.4,b)); if(o>0) s+=`<g opacity="${o}"><text x="40" y="82" class="d" font-weight="750" font-size="40" fill="#fff" letter-spacing="-1">${h}</text><foreignObject x="40" y="96" width="820" height="80"><div xmlns="http://www.w3.org/1999/xhtml" class="s" style="color:${DIM};font-size:20px;line-height:1.4">${sub}</div></foreignObject></g>`}
+ // nodes
+ const pulse={browser:[[0.6,1],[5.8,1],[10.4,1],[22,1],[26.2,1]],tee:[[2.2,.8]],chain:[[7.8,1],[13,1],[20.2,1],[27.6,1]],blob:[[7.8,1]],owner:[[16.8,1],[18.6,1]]};
+ for(const k in N){const n=N[k];let g=0;for(const [pt,d] of pulse[k]||[]){g=Math.max(g,Math.max(0,1-Math.abs(t-pt)/.6))}
+  const c=n.p?TAPE:BLUE;s+=`<rect x="${n.x}" y="${n.y}" width="${n.w}" height="${n.h}" rx="8" fill="${INK}" stroke="${c}" stroke-width="${2+g*3}" ${g?`filter="drop-shadow(0 0 ${12*g}px ${c})"`:""}/><text x="${n.x+20}" y="${n.y+32}" class="d" font-weight="700" font-size="19" fill="#fff">${n.t}</text>`}
+ // tree (scene 5)
+ const to=Math.min(q(t,21.2,21.8),1-q(t,25.6,26)); if(to>0){const lv=[[520,420],[590,420],[660,420],[730,420]],m1=[[555,350],[695,350]],r=[625,280];
+  const hl=q(t,23.2,24.2);let g=`<g opacity="${to}">`;
+  [[0,0],[1,0],[2,1],[3,1]].forEach(([i,j])=>{g+=`<line x1="${lv[i][0]}" y1="${lv[i][1]}" x2="${m1[j][0]}" y2="${m1[j][1]}" stroke="${(i==1||j==0&&i<2)&&hl?GREEN:"#46568A"}" stroke-width="2"/>`});
+  m1.forEach(p=>{g+=`<line x1="${p[0]}" y1="${p[1]}" x2="${r[0]}" y2="${r[1]}" stroke="${p===m1[0]&&hl?GREEN:"#46568A"}" stroke-width="2"/>`});
+  lv.forEach((p,i)=>g+=`<circle cx="${p[0]}" cy="${p[1]}" r="${i==1?12:9}" fill="${i==1&&hl?GREEN:INK}" stroke="${i==1?GREEN:BLUE}" stroke-width="2"/>`);
+  m1.forEach(p=>g+=`<circle cx="${p[0]}" cy="${p[1]}" r="9" fill="${INK}" stroke="${BLUE}" stroke-width="2"/>`);
+  g+=`<circle cx="${r[0]}" cy="${r[1]}" r="13" fill="${hl?"#0f3a2b":INK}" stroke="${hl?GREEN:BLUE}" stroke-width="2.5"/><text x="${r[0]}" y="${r[1]-26}" text-anchor="middle" class="d" font-size="14" font-weight="600" fill="${DIM}">round root on NEAR</text><text x="${lv[1][0]}" y="${lv[1][1]+34}" text-anchor="middle" class="d" font-size="14" font-weight="600" fill="${hl?GREEN:DIM}">your session</text></g>`;s+=g}
+ // chips
+ for(const [a,b,node,dx,dy,l,k,w] of CH){const o=Math.min(q(t,a,a+.35),1-q(t,b-.35,b));if(o>0){const n=N[node];let y=n.y+dy;if(k==="c"&&node==="browser"&&a===6.0)o;s+=chip(n.x+dx,y,w,l,k,o,1)}}
+ // revoke visuals
+ if(t>26.4){const sw=q(t,26.8,27.4),o=q(t,26.4,26.8);s+=`<g opacity="${o}" transform="translate(60 440)"><rect width="52" height="28" rx="14" fill="${sw>.5?"#4a566f":GREEN}"/><circle cx="${14+(1-sw)*24}" cy="14" r="10" fill="#fff"/><text x="66" y="20" class="d" font-weight="600" font-size="15" fill="${TXT}">${sw>.5?"Consent off":"Consent on"}</text></g>`;
+  const st=q(t,27.4,27.9);if(st>0&&t<31) s+=`<g opacity="${Math.min(st,1-q(t,30.4,31))}"><text x="${N.chain.x+20}" y="${N.chain.y+101+0}" class="m" font-size="12" fill="#ff8f8f" opacity="0"></text><rect x="${N.chain.x+20}" y="${N.chain.y+98}" width="${300*st}" height="36" fill="none"/><line x1="${N.chain.x+30}" y1="${N.chain.y+116}" x2="${N.chain.x+30+280*st}" y2="${N.chain.y+116}" stroke="#ff8f8f" stroke-width="2.5"/></g>`;
+  const bo=q(t,28.4,28.9)*(1-q(t,30.5,31));if(bo>0) s+=`<g opacity="${bo}">${chip(N.owner.x+20,N.owner.y+122,300,"next round: excluded","p",1)}</g>`}
+ if(t>27.8&&t<31){const o=q(t,27.8,28.3)*(1-q(t,30.5,31));s+=`<g opacity="${o}">${chip(N.chain.x+20,N.chain.y+98,300,"consent revoked, key deleted","p",1)}</g>`}
+ // packets
+ for(const [a,b,f,to2,l,k,cv] of PK){if(t<a-.1||t>b+.5)continue;const p=e((t-a)/(b-a)),o=Math.min(q(t,a-.1,a+.25),1-q(t,b,b+.5)),mx=(f[0]+to2[0])/2,my=(f[1]+to2[1])/2+cv;
+  const x=(1-p)*(1-p)*f[0]+2*(1-p)*p*mx+p*p*to2[0],y=(1-p)*(1-p)*f[1]+2*(1-p)*p*my+p*p*to2[1],w=l.length*7.6+28;
+  s+=`<path d="M${f[0]} ${f[1]} Q ${mx} ${my} ${to2[0]} ${to2[1]}" fill="none" stroke="${stroke[k]}" stroke-opacity="${.28*o}" stroke-width="2" stroke-dasharray="5 6"/><g transform="translate(${x-w/2} ${y-15})" opacity="${o}"><rect width="${w}" height="30" rx="15" fill="${fill[k]}" stroke="${stroke[k]}" stroke-width="2"/><text x="${w/2}" y="20" text-anchor="middle" class="d" font-size="13.5" font-weight="650" fill="#fff">${l}</text></g>`}
+ // legend + brand
+ s+=`<g transform="translate(40 690)"><rect width="14" height="14" rx="3" fill="none" stroke="${TAPE}" stroke-width="2"/><text x="24" y="12" class="s" font-size="15" fill="${DIM}">Plaintext can exist here</text><rect x="230" width="14" height="14" rx="3" fill="none" stroke="${BLUE}" stroke-width="2"/><text x="254" y="12" class="s" font-size="15" fill="${DIM}">Only ciphertext, hashes or keys</text></g><text x="1240" y="702" text-anchor="end" class="d" font-weight="800" font-size="16" fill="#fff" opacity=".85">Veil</text>`;
+ const fo=1-q(t,30.6,31);const fi=q(t,0,.4);document.getElementById("v").innerHTML=`<g opacity="${Math.min(fo,fi)}">${s}</g>`}
+window.render=render;window.DUR=31;
+const u=new URLSearchParams(location.search);if(u.has("t"))render(+u.get("t"));else{let st;const f=ts=>{st??=ts;render(((ts-st)/1000)%31);requestAnimationFrame(f)};document.fonts.ready.then(()=>requestAnimationFrame(f))}
+</script></body></html>
