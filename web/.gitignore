@@ -1,0 +1,6 @@
+node_modules
+.env*
+.blobs
+dist
+.gate-store
+!.env.example
