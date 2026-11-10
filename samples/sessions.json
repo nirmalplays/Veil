@@ -1,0 +1,45 @@
+{
+  "note": "Every name, company, number and conversation here is fictional. No real data. Use these to try the app without typing your own.",
+  "sessions": [
+    {
+      "id": "refactor-loops",
+      "title": "Refactor nested loops",
+      "suggestedConsent": "share",
+      "why": "Generic code question with nothing sensitive in it. A good session to share with a model owner.",
+      "messages": [
+        { "role": "user", "content": "Refactor this to avoid the nested loops: for a in rows: for b in cols: if a.id == b.row_id: out.append(b)" },
+        { "role": "assistant", "content": "Index the second list once, then look up each id in constant time:\n\nby_row = defaultdict(list)\nfor b in cols:\n    by_row[b.row_id].append(b)\nout = [b for a in rows for b in by_row.get(a.id, [])]\n\nThis is O(n + m) instead of O(n * m)." }
+      ]
+    },
+    {
+      "id": "reconcile-ledger",
+      "title": "Reconcile fails on partial refunds",
+      "suggestedConsent": "keep-private",
+      "why": "Mentions an internal service and a failure mode. A good session to keep private, then check it never appears in a round.",
+      "messages": [
+        { "role": "user", "content": "In our fictional Acme Pay ledger, reconcile_ledger() fails when a refund is partial and the original charge was split across two settlements. Why?" },
+        { "role": "assistant", "content": "Most likely the refund is matched against only the first settlement. When a charge is split, a partial refund can span both, so the totals disagree by the amount that landed in the second one. Match refunds against the sum of all settlements for the charge id, then compare." }
+      ]
+    },
+    {
+      "id": "privacy-notice",
+      "title": "Draft a privacy notice for a fitness app",
+      "suggestedConsent": "share",
+      "why": "Generic drafting task about an invented app. Safe to share.",
+      "messages": [
+        { "role": "user", "content": "Draft a short privacy notice for StrideLog, an invented running app that stores routes and heart rate on the user's phone." },
+        { "role": "assistant", "content": "StrideLog keeps your routes and heart-rate data on your phone. We do not upload it to our servers. If you choose to back it up, it is encrypted before it leaves your device. You can delete everything from Settings at any time, and deleting the app removes the local data." }
+      ]
+    },
+    {
+      "id": "consent-withdrawal",
+      "title": "Explain consent withdrawal in plain words",
+      "suggestedConsent": "pin",
+      "why": "Reference-style Q&A that stays useful over time. A candidate to pin (no expiry).",
+      "messages": [
+        { "role": "user", "content": "Explain in plain words what it means when someone withdraws consent to use their data." },
+        { "role": "assistant", "content": "It means the organisation must stop using that person's data for the purpose they agreed to, from that point on. It does not undo what was already done lawfully. A good system makes withdrawing as easy as giving consent in the first place." }
+      ]
+    }
+  ]
+}
