@@ -46,6 +46,9 @@ Private AI chat where your sessions are encrypted on your device, and model owne
 | F10 | Private retrieval: rank consented sessions in the browser (BM25), send the relevant ones as encrypted context, show sources, anchor the use as a round | ✅ built; consent re-checked per question; browser test shows mute and revoke drop a session from the next answer |
 | F11 | Answer receipts: enclave signature over the exact request and response bodies, bound to the attested key, optional disclosure | ✅ built; verified in browser with full TDX and GPU attestation |
 | F12 | Policy registry (`publish_policy`, `policy_at`) with a machine-checkable policy (prompt plus rules); a receipt re-runs the rules on the disclosed reply | ✅ built; authentic and compliant are separate verdicts |
+| F16 | Sealed knowledge base: relay seals it to a self-verified enclave key, the browser forwards ciphertext, the model reads it whole inside the TEE; owner audit proves what was sealed against the registered root | ✅ built; 15-check real-enclave browser test incl. attacker-key refusal |
+| F15 | Semantic retrieval in a TEE: passages and questions embedded by `Qwen3-Embedding-0.6B` in an attested enclave over E2EE, vectors covered by the Merkle root, cosine ranking in the browser, keyword fallback | ✅ built; real-enclave browser test with a paraphrased question |
+| F14 | Per-workspace knowledge base: passages hashed into a Merkle root inside the registered policy, retrieval in the visitor's browser, source citations, and receipts that prove the used passages belong to the registered root | ✅ built; two-workspace browser test on the real enclave |
 | F13 | Embeddable widget, relay and demo law-firm site | ✅ built; blocks itself if the policy does not match the registry; withholds replies that break a rule |
 
 ## 7. Key flows
