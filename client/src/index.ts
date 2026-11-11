@@ -10,3 +10,7 @@ export * from "./verify.js";
 export * from "./receipt.js";
 export * from "./policy.js";
 export * from "./memory.js";
+export * from "./site.js";
+export * from "./kb.js";
+export * from "./embed.js";
+export * from "./seal.js";

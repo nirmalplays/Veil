@@ -16,16 +16,24 @@ export function generateClientKeys(): ClientKeys {
   return { pubHex: toHex(publicKey), x25519Secret: ed25519.utils.toMontgomerySecret(secretKey) };
 }
 
-/** Encrypt to an Ed25519 public key (the model's, or a client's). Returns hex. */
-/** Encrypts to the model key and also returns the ephemeral secret, so the sender can later prove what was sent. */
-export function e2eeEncryptKeep(plaintext: string, recipientEd25519PubHex: string): { data: string; ephemeralSecret: string } {
+/**
+ * Encrypts with a caller-chosen ephemeral secret and nonce, so the same inputs always give the same ciphertext. Used to seal a knowledge base:
+ * the relay can derive the secret again later and prove what it sealed. Never reuse one (secret, nonce) pair for different plaintexts.
+ */
+export function e2eeEncryptWith(plaintext: string, recipientEd25519PubHex: string, ephemeralSecretHex: string, nonceHex: string): string {
   const pub = fromHex(recipientEd25519PubHex);
   if (pub.length !== 32) throw new Error("ed25519 public key must be 32 bytes");
-  const eph = x25519.utils.randomSecretKey();
+  const eph = fromHex(ephemeralSecretHex), nonce = fromHex(nonceHex);
+  if (eph.length !== 32 || nonce.length !== 24) throw new Error("ephemeral secret must be 32 bytes and the nonce 24");
   const k = key(x25519.getSharedSecret(eph, ed25519.utils.toMontgomery(pub)));
-  const nonce = crypto.getRandomValues(new Uint8Array(24));
   const ct = xchacha20poly1305(k, nonce).encrypt(new TextEncoder().encode(plaintext));
-  return { data: toHex(new Uint8Array([...x25519.getPublicKey(eph), ...nonce, ...ct])), ephemeralSecret: toHex(eph) };
+  return toHex(new Uint8Array([...x25519.getPublicKey(eph), ...nonce, ...ct]));
+}
+
+/** Encrypts to the model key and also returns the ephemeral secret, so the sender can later prove what was sent. */
+export function e2eeEncryptKeep(plaintext: string, recipientEd25519PubHex: string): { data: string; ephemeralSecret: string } {
+  const eph = x25519.utils.randomSecretKey();
+  return { data: e2eeEncryptWith(plaintext, recipientEd25519PubHex, toHex(eph), toHex(crypto.getRandomValues(new Uint8Array(24)))), ephemeralSecret: toHex(eph) };
 }
 export function e2eeEncrypt(plaintext: string, recipientEd25519PubHex: string): string {
   return e2eeEncryptKeep(plaintext, recipientEd25519PubHex).data;

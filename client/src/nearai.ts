@@ -6,9 +6,23 @@ import type { FullVerification } from "./verify.js";
 
 export const BASE_URL = "https://cloud-api.near.ai/v1";
 
+export interface ModelInfo { id: string; owned_by?: string; is_ready?: boolean; context_length?: number; supported_features?: string[]; architecture?: { outputModalities?: string[] }; pricing?: { input?: number; output?: number } }
+/**
+ * Chat models that run in NEAR AI's attested TEEs. Checked against the live API: models owned by "nearai" answer /attestation/report, while the
+ * proxied third-party ones return "no provider supports attestation". Classifier, speech, reranker and embedding models are also "nearai" and
+ * text-in, but declare no chat features, so a model must advertise tools, reasoning or structured output. Uncensored "abliterated" variants are left out of the default list.
+ */
+export const teeChatModels = (all: ModelInfo[]): ModelInfo[] =>
+  all.filter((m) => m.owned_by === "nearai" && m.is_ready !== false && !/abliterated/i.test(m.id)
+    && (m.architecture?.outputModalities ?? ["text"]).includes("text") && (m.supported_features?.length ?? 0) > 0);
+
 export interface ChatMessage { role: "system" | "user" | "assistant"; content: string }
 /** Exact bytes exchanged, plus the secrets that let the sender later reveal what they said. Keep private unless disclosing. */
-export interface Wire { requestBody: string; responseBody: string; ephemeralSecrets: string[]; clientSecret: string }
+export interface Wire {
+  requestBody: string; responseBody: string; ephemeralSecrets: string[]; clientSecret: string;
+  /** Positions in the request of messages we forwarded but did not encrypt ourselves (a sealed knowledge base). Their ephemeral secret is "" because we never held it. */
+  sealed?: number[];
+}
 export interface ChatResult { id: string; text: string; raw: unknown }
 
 export class NearAI {
@@ -36,7 +50,16 @@ export class NearAI {
    * encrypt message contents to it, and decrypt the reply with an ephemeral client key. Non-streaming.
    * Throws if the attestation checks fail. Returns the check result so the UI can show it.
    */
-  async chatE2EE(model: string, messages: ChatMessage[], opts: { maxTokens?: number; /** Full verifier (see verify.ts). Without it only the cheap key-to-quote binding is checked. */ verify?: (report: unknown, nonce: string) => Promise<FullVerification> } = {}): Promise<ChatResult & { attestation: { nonce: string; report: unknown; check: KeyCheck; full?: FullVerification }; wire: Wire }> {
+  async chatE2EE(model: string, messages: ChatMessage[], opts: {
+    maxTokens?: number;
+    /** Full verifier (see verify.ts). Without it only the cheap key-to-quote binding is checked. */
+    verify?: (report: unknown, nonce: string) => Promise<FullVerification>;
+    /**
+     * Returns a ready-made ciphertext (hex) for the verified enclave key, which is sent as a system message at `sealedAt` (default 1).
+     * It is a knowledge base sealed by the site's relay: this client never reads it, and only the enclave can.
+     */
+    sealed?: (modelKey: string) => Promise<string>; sealedAt?: number;
+  } = {}): Promise<ChatResult & { attestation: { nonce: string; report: unknown; check: KeyCheck; full?: FullVerification }; wire: Wire }> {
     const { nonce, report } = await this.attestation(model);
     let check = checkModelAttestation(report, nonce);
     let full: FullVerification | undefined;
@@ -47,7 +70,12 @@ export class NearAI {
     }
     if (!check.ok || !check.publicKey) throw new Error(`attestation check failed: ${check.reasons.join(", ")}`);
     const client = generateClientKeys();
-    const sealed = messages.map((m) => ({ ...m, ...e2eeEncryptKeep(m.content, check.publicKey!) }));
+    const sealed: { role: string; data: string; ephemeralSecret: string }[] = messages.map((m) => ({ role: m.role, ...e2eeEncryptKeep(m.content, check.publicKey!) }));
+    const sealedIdx: number[] = [];
+    if (opts.sealed) {
+      const at = Math.max(0, Math.min(opts.sealedAt ?? 1, sealed.length));
+      sealed.splice(at, 0, { role: "system", data: await opts.sealed(check.publicKey), ephemeralSecret: "" }); sealedIdx.push(at);
+    }
     const requestBody = JSON.stringify({
       model, stream: false, ...(opts.maxTokens ? { max_tokens: opts.maxTokens } : {}),
       messages: sealed.map((m) => ({ role: m.role, content: m.data })),
@@ -62,7 +90,7 @@ export class NearAI {
     });
     const j = JSON.parse(responseBody);
     const c = j.choices?.[0]?.message?.content;
-    const wire: Wire = { requestBody, responseBody, ephemeralSecrets: sealed.map((m) => m.ephemeralSecret), clientSecret: toHex(client.x25519Secret) };
+    const wire: Wire = { requestBody, responseBody, ephemeralSecrets: sealed.map((m) => m.ephemeralSecret), clientSecret: toHex(client.x25519Secret), ...(sealedIdx.length ? { sealed: sealedIdx } : {}) };
     return { id: j.id, text: c ? e2eeDecrypt(c, client.x25519Secret) : "", raw: j, attestation: { nonce, report, check, full }, wire };
   }
 
@@ -77,10 +105,36 @@ export class NearAI {
   }
 
   /** Signature over a completed response, made by the key bound to the attested enclave. */
-  signature(chatId: string, model: string, signingAlgo: "ecdsa" | "ed25519" = "ed25519") {
+  /** The signature may not be there the instant a reply arrives, or the lookup can land on another node, so it is retried briefly. */
+  async signature(chatId: string, model: string, signingAlgo: "ecdsa" | "ed25519" = "ed25519", tries = 3) {
     const q = new URLSearchParams({ model, signing_algo: signingAlgo });
-    return this.req(`/signature/${encodeURIComponent(chatId)}?${q}`);
+    let last: unknown;
+    for (let i = 0; i < tries; i++) {
+      try { return await this.req(`/signature/${encodeURIComponent(chatId)}?${q}`); }
+      catch (e) { last = e; await new Promise((r) => setTimeout(r, 400 * (i + 1))); }
+    }
+    throw last;
   }
+
+  /**
+   * Embeddings with the input encrypted to the model's attested key (the same protocol as chat). The enclave embeds the text and returns each
+   * vector encrypted to an ephemeral key of ours, so neither the gateway nor anything on the path sees the text or the vector.
+   * `modelKey` must come from an attestation that was verified.
+   */
+  async embedE2EE(model: string, texts: string[], modelKey: string): Promise<number[][]> {
+    const client = generateClientKeys();
+    const raw = await this.reqRaw("/embeddings", {
+      method: "POST",
+      headers: { "X-Signing-Algo": "ed25519", "X-Client-Pub-Key": client.pubHex, "X-Model-Pub-Key": modelKey, "X-Encryption-Version": "2", "x-no-aliasing": "true" },
+      body: JSON.stringify({ model, input: texts.map((t) => e2eeEncryptKeep(t, modelKey).data) }),
+    });
+    const rows: { index: number; embedding: string }[] = [...(JSON.parse(raw).data ?? [])].sort((a, b) => a.index - b.index);
+    if (rows.length !== texts.length) throw new Error(`embeddings: asked for ${texts.length}, got ${rows.length}`);
+    return rows.map((r) => JSON.parse(e2eeDecrypt(r.embedding, client.x25519Secret)) as number[]);
+  }
+
+  /** The models endpoint. Only models owned by "nearai" run in the attested TEEs; third-party ones are proxied and have no attestation. */
+  models() { return this.req("/models").then((j: any) => (j.data ?? []) as ModelInfo[]); }
 }
 
 /** sha256 hex of any JSON-serialisable report; this is what `record_eval`/`record_round` anchor on-chain. */

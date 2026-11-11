@@ -8,14 +8,14 @@ export type Rule =
   | { type: "must_include"; text: string }
   | { type: "must_not_include"; text: string }
   | { type: "must_not_match"; pattern: string; flags?: string; label?: string };
-export interface Policy { prompt: string; rules?: Rule[] }
+export interface Policy { prompt: string; rules?: Rule[]; /** Fingerprint of the workspace's knowledge base (Merkle root and chunk count, plus the embedding model if it has a semantic index); see kb.ts. */ kb?: { root: string; chunks: number; embed?: { model: string; dims: number }; mode?: "sealed" } }
 export interface RuleResult { rule: Rule; ok: boolean; label: string; detail: string }
 
 /** Stable JSON: object keys sorted, so the same policy always hashes the same. An empty rule list equals no rules. */
 export function canonicalPolicy(p: Policy): string {
   const sort = (v: unknown): unknown => Array.isArray(v) ? v.map(sort) : v && typeof v === "object"
     ? Object.fromEntries(Object.entries(v as Record<string, unknown>).sort(([a], [b]) => (a < b ? -1 : 1)).map(([k, x]) => [k, sort(x)])) : v;
-  return JSON.stringify(sort({ prompt: p.prompt, rules: p.rules ?? [] }));
+  return JSON.stringify(sort({ prompt: p.prompt, rules: p.rules ?? [], ...(p.kb ? { kb: p.kb } : {}) }));
 }
 export const policyHash = (p: Policy): string =>
   Array.from(sha256(new TextEncoder().encode(canonicalPolicy(p))), (b) => b.toString(16).padStart(2, "0")).join("");
