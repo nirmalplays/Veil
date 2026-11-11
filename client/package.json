@@ -6,7 +6,10 @@
   "scripts": {
     "build": "tsc",
     "test": "tsx --test test/*.test.ts",
-    "verify": "tsx scripts/verify-attestation.ts",
+    "verify": "tsx --env-file-if-exists=.env scripts/verify-attestation.ts",
+    "one-completion": "tsx --env-file-if-exists=.env scripts/one-completion.ts",
+    "receipt": "tsx --env-file-if-exists=.env scripts/make-receipt.ts",
+    "memory-demo": "tsx --env-file-if-exists=.env scripts/memory-demo.ts",
     "typecheck": "tsc --noEmit"
   },
   "devDependencies": {
