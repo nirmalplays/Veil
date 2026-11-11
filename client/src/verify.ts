@@ -49,26 +49,50 @@ export async function expectedMrConfigId(appCompose: string): Promise<Uint8Array
 }
 
 /** Checks 2 and 3, given the TD fields from a verified quote. */
-export async function checkTdBinding(c: any, nonce: string, td: TdFields): Promise<Check[]> {
+export interface Who { key: string; noun: string; /** prepended to ids and labels, e.g. "gw-" and "Gateway: " */ idPrefix: string; labelPrefix: string }
+const MODEL: (c: any) => Who = (c) => ({ key: c.signing_public_key ?? "", noun: "model", idPrefix: "", labelPrefix: "" });
+export async function checkTdBinding(c: any, nonce: string, td: TdFields, who: Who = MODEL(c)): Promise<Check[]> {
   const out: Check[] = [];
-  const key = fromHex(c.signing_public_key ?? "");
+  const L = (l: string) => who.labelPrefix + l;
+  const key = fromHex(who.key);
   const wantRd = cat(key, new Uint8Array(32 - key.length), fromHex(nonce));
   out.push(eq(td.reportData, wantRd)
-    ? { id: "report-data", state: "ok", label: "Quote binds the model key and our nonce", detail: "REPORT_DATA from the verified quote equals the model's signing key followed by our fresh nonce." }
-    : { id: "report-data", state: "failed", label: "Quote binds the model key and our nonce", detail: "REPORT_DATA in the verified quote does not match the model key and nonce. This key is not proven to live in this enclave." });
+    ? { id: `${who.idPrefix}report-data`, state: "ok", label: L(`Quote binds the ${who.noun} key and our nonce`), detail: `REPORT_DATA from the verified quote equals the ${who.noun}'s signing key followed by our fresh nonce.` }
+    : { id: `${who.idPrefix}report-data`, state: "failed", label: L(`Quote binds the ${who.noun} key and our nonce`), detail: "REPORT_DATA in the verified quote does not match the model key and nonce. This key is not proven to live in this enclave." });
   try {
     const ti = asObj(c.info?.tcb_info);
     const events = c.event_log ?? ti?.event_log;
     const got = await replayRtmr3(events);
     out.push(eq(got, td.rtMr3)
-      ? { id: "rtmr3", state: "ok", label: "Event log replays to the quote's RTMR3", detail: "Replaying the app's boot events reproduces the measured RTMR3, so the app id and compose hash in the log are authentic." }
-      : { id: "rtmr3", state: "failed", label: "Event log replays to the quote's RTMR3", detail: "The replayed RTMR3 differs from the one in the verified quote." });
+      ? { id: `${who.idPrefix}rtmr3`, state: "ok", label: L("Event log replays to the quote's RTMR3"), detail: "Replaying the app's boot events reproduces the measured RTMR3, so the app id and compose hash in the log are authentic." }
+      : { id: `${who.idPrefix}rtmr3`, state: "failed", label: L("Event log replays to the quote's RTMR3"), detail: "The replayed RTMR3 differs from the one in the verified quote." });
     const want = await expectedMrConfigId(ti.app_compose);
     out.push(eq(want, td.mrConfigId)
-      ? { id: "mr-config", state: "ok", label: "Docker compose matches the quote's MRCONFIGID", detail: "SHA-256 of the app_compose text is the value the hardware measured." }
-      : { id: "mr-config", state: "failed", label: "Docker compose matches the quote's MRCONFIGID", detail: "The compose file served with the report is not the one the hardware measured." });
+      ? { id: `${who.idPrefix}mr-config`, state: "ok", label: L("Docker compose matches the quote's MRCONFIGID"), detail: "SHA-256 of the app_compose text is the value the hardware measured." }
+      : { id: `${who.idPrefix}mr-config`, state: "failed", label: L("Docker compose matches the quote's MRCONFIGID"), detail: "The compose file served with the report is not the one the hardware measured." });
   } catch (e) {
-    out.push({ id: "rtmr3", state: "failed", label: "Event log and compose measurements", detail: e instanceof Error ? e.message : String(e) });
+    out.push({ id: `${who.idPrefix}rtmr3`, state: "failed", label: L("Event log and compose measurements"), detail: e instanceof Error ? e.message : String(e) });
+  }
+  return out;
+}
+
+/**
+ * The gateway is the NEAR AI service that fronts the models; the docs say to verify its attestation before a completion. It has the same
+ * shape as a model's (Intel quote, event log, compose) and its signing address is bound into REPORT_DATA the same way.
+ */
+export async function verifyGatewayAttestation(g: any, nonce: string): Promise<Check[]> {
+  const L = (l: string) => `Gateway: ${l}`;
+  if (!g) return [{ id: "gw-present", state: "skipped", label: L("attestation"), detail: "This report carries no gateway attestation." }];
+  const out: Check[] = [{ id: "gw-nonce", state: g.request_nonce === nonce ? "ok" : "failed", label: L("our fresh nonce is echoed (not a replay)"), detail: g.request_nonce === nonce ? "The gateway returned the nonce we just generated." : "The gateway returned a different nonce." }];
+  try {
+    const v: any = await getCollateralAndVerify(fromHex(g.intel_quote));
+    const d = v.report?.data;
+    if (!d) throw new Error("verified gateway quote has no TD10 report");
+    out.push({ id: "gw-intel", state: ACCEPTED_TCB.includes(v.status) ? "ok" : "failed", label: L("Intel confirms the quote came from genuine TDX hardware"), detail: `TCB status: ${v.status}.` });
+    out.push({ id: "gw-debug", state: (d.tdAttributes[0] & 1) === 1 ? "failed" : "ok", label: L("enclave is not in debug mode"), detail: (d.tdAttributes[0] & 1) === 1 ? "The debug bit is set." : "TD attributes show production mode." });
+    out.push(...(await checkTdBinding(g, nonce, { reportData: d.reportData, mrConfigId: d.mrConfigId, rtMr3: d.rtMr3, tdAttributes: d.tdAttributes }, { key: g.signing_address ?? "", noun: "gateway", idPrefix: "gw-", labelPrefix: "Gateway: " })));
+  } catch (e) {
+    out.push({ id: "gw-intel", state: "failed", label: L("Intel confirms the quote came from genuine TDX hardware"), detail: e instanceof Error ? e.message : String(e) });
   }
   return out;
 }
@@ -77,10 +101,10 @@ const b64u = (s: string) => Uint8Array.from(atob(s.replace(/-/g, "+").replace(/_
 const jwtPart = (s: string) => JSON.parse(new TextDecoder().decode(b64u(s)));
 
 /** Verifies an ES384/ES256 JWT signature against NVIDIA's published keys. Returns the claims. */
-export async function verifyJwt(token: string, f: typeof fetch): Promise<any> {
+export async function verifyJwt(token: string, f: typeof fetch, preloaded?: { keys: any[] }): Promise<any> {
   const [h, p, s] = token.split(".");
   const header = jwtPart(h), claims = jwtPart(p);
-  const jwks = await (await f(`${NRAS}/.well-known/jwks.json`)).json();
+  const jwks = preloaded ?? (await (await f(`${NRAS}/.well-known/jwks.json`)).json());
   const jwk = jwks.keys.find((k: any) => k.kid === header.kid);
   if (!jwk) throw new Error(`signing key ${header.kid} not found in NVIDIA's key set`);
   const curve = header.alg === "ES384" ? "P-384" : "P-256", hash = header.alg === "ES384" ? "SHA-384" : "SHA-256";
@@ -88,6 +112,37 @@ export async function verifyJwt(token: string, f: typeof fetch): Promise<any> {
   const ok = await crypto.subtle.verify({ name: "ECDSA", hash }, key, b64u(s) as BufferSource, utf8(`${h}.${p}`) as BufferSource);
   if (!ok) throw new Error("JWT signature does not verify against NVIDIA's key");
   return claims;
+}
+
+/** The container images (name and sha256 digest) a compose manifest pins, e.g. nearaidev/cloud-api@sha256:d74c… */
+export function attestedImages(appCompose: string): { image: string; digest: string }[] {
+  const m = new Map<string, string>();
+  for (const x of String(appCompose ?? "").matchAll(/([A-Za-z0-9][\w.\-/]*)@sha256:([0-9a-f]{64})/g)) m.set(x[1], x[2]);
+  return [...m].map(([image, digest]) => ({ image, digest }));
+}
+/** Build provenance (Sigstore) is one of the guide's steps. We do not verify it, so this says so and lists what to look up. */
+function provenanceNote(c: any, who: string): Check {
+  let imgs: { image: string; digest: string }[] = [];
+  try { imgs = attestedImages(asObj(c?.info?.tcb_info)?.app_compose); } catch { /* no compose */ }
+  const own = imgs.filter((i) => i.image.startsWith("nearaidev/"));
+  const list = (own.length ? own : imgs).map((i) => `${i.image}@sha256:${i.digest.slice(0, 12)}…`).join(", ");
+  return { id: `${who}-provenance`, state: "skipped", label: `${who === "gw" ? "Gateway: " : ""}Build provenance (Sigstore) is not verified`,
+    detail: imgs.length ? `The enclave attests to these images, which can be looked up on search.sigstore.dev: ${list}.` : "No image digests were found in the compose manifest." };
+}
+
+/** What is wrong with an NVIDIA token's claims, from the checklist in NEAR AI's verification guide. Empty means fine. */
+export function gpuProblems(c: any, nonce: string, who: string, perGpu = false): string[] {
+  const p: string[] = [];
+  if (!c.eat_nonce || String(c.eat_nonce).toLowerCase() !== nonce.toLowerCase()) p.push(`${who}: carries a different nonce than ours`);
+  if (typeof c.exp !== "number" || c.exp <= Date.now() / 1000) p.push(`${who}: the token has expired`);
+  if (!perGpu) return p;
+  if (c.secboot !== true) p.push(`${who}: secure boot is not on`);
+  if (c.dbgstat !== "disabled") p.push(`${who}: debug mode is not disabled`);
+  if (c.measres !== "success") p.push(`${who}: measurements did not pass`);
+  if (!c.hwmodel || !c.ueid) p.push(`${who}: the GPU identity is missing`);
+  for (const [k, v] of Object.entries(c)) if (k.startsWith("x-nvidia-") && v === false) p.push(`${who}: ${k} is false`);
+  if (c["x-nvidia-attestation-warning"] != null) p.push(`${who}: NVIDIA reported a warning`);
+  return p;
 }
 
 /** Check 4. Skipped (not failed) when the report carries no GPU evidence. */
@@ -103,16 +158,28 @@ export async function checkNvidia(c: any, nonce: string, f: typeof fetch, attest
     const body: any[] = await r.json();
     const token = body.find((x) => Array.isArray(x) && x[0] === "JWT")?.[1];
     if (!token) throw new Error("no overall JWT in NVIDIA's answer");
-    const claims = await verifyJwt(token, f);
+    const jwks = await (await f(`${NRAS}/.well-known/jwks.json`)).json();   // fetched directly from NVIDIA, never through the forwarder
+    const claims = await verifyJwt(token, f, jwks);
     if (claims["x-nvidia-overall-att-result"] !== true) return { id: "nvidia", state: "failed", label, detail: "NVIDIA's overall verdict is not true." };
-    if (claims.eat_nonce && String(claims.eat_nonce).toLowerCase() !== nonce.toLowerCase()) return { id: "nvidia", state: "failed", label, detail: "NVIDIA's signed token carries a different nonce." };
-    return { id: "nvidia", state: "ok", label, detail: "NVIDIA's attestation service returned a signed verdict of true for these GPUs, with our nonce. The token signature was checked against NVIDIA's published keys." };
+    // The overall verdict alone is not enough (NEAR AI's verification guide lists this as a pitfall): every GPU's own token is checked too.
+    const perGpu = body.find((x) => x && !Array.isArray(x) && typeof x === "object") as Record<string, string> | undefined;
+    if (!perGpu || !Object.keys(perGpu).length) return { id: "nvidia", state: "failed", label, detail: "NVIDIA returned no per-GPU tokens, so each GPU could not be checked." };
+    const problems = gpuProblems(claims, nonce, "the overall token");
+    const submods = Object.keys(claims.submods ?? {}).sort().join(",");
+    if (submods !== Object.keys(perGpu).sort().join(",")) problems.push("the GPUs in the overall token are not the GPUs that were returned");
+    let model = "";
+    for (const [name, t] of Object.entries(perGpu)) {
+      try { const g = await verifyJwt(t, f, jwks); model = g.hwmodel ?? model; problems.push(...gpuProblems(g, nonce, name, true)); }
+      catch (e) { problems.push(`${name}: ${e instanceof Error ? e.message : String(e)}`); }
+    }
+    if (problems.length) return { id: "nvidia", state: "failed", label, detail: problems.slice(0, 4).join("; ") + (problems.length > 4 ? `; and ${problems.length - 4} more` : "") };
+    return { id: "nvidia", state: "ok", label, detail: `${Object.keys(perGpu).length} GPUs${model ? ` (${model})` : ""}: NVIDIA signed a verdict of true with our nonce, and every GPU reports secure boot on, debug off, measurements passed, and every reference-measurement and certificate check true. All tokens were checked against NVIDIA's published keys and are unexpired.` };
   } catch (e) {
     return { id: "nvidia", state: "failed", label, detail: e instanceof Error ? e.message : String(e) };
   }
 }
 
-export interface VerifyOptions { candidate?: number; f?: typeof fetch; skipNvidia?: boolean; /** Base URL for NVIDIA's attestation POST, e.g. "/nras" behind a same-origin proxy. */ nrasProxy?: string }
+export interface VerifyOptions { candidate?: number; f?: typeof fetch; skipNvidia?: boolean; skipGateway?: boolean; /** Base URL for NVIDIA's attestation POST, e.g. "/nras" behind a same-origin proxy. */ nrasProxy?: string }
 
 /** Full verification of one model attestation candidate from a gateway report. */
 export async function verifyModelAttestation(report: any, nonce: string, opts: VerifyOptions = {}): Promise<FullVerification> {
@@ -143,6 +210,9 @@ export async function verifyModelAttestation(report: any, nonce: string, opts: V
     checks.push({ id: "intel", state: "failed", label: "Intel confirms the quote came from genuine TDX hardware", detail: e instanceof Error ? e.message : String(e) });
   }
   checks.push(opts.skipNvidia ? { id: "nvidia", state: "skipped", label: "NVIDIA confirms the GPUs are genuine and in confidential mode", detail: "Skipped by request." } : await checkNvidia(c, nonce, f, opts.nrasProxy));
+
+  checks.push(provenanceNote(c, "model"));
+  if (!opts.skipGateway) { checks.push(...(await verifyGatewayAttestation(report?.gateway_attestation, nonce))); checks.push(provenanceNote(report?.gateway_attestation, "gw")); }
 
   const ok = checks.every((x) => x.state !== "failed") && checks.some((x) => x.id === "intel" && x.state === "ok");
   return { ok, checks, publicKey: ok ? c.signing_public_key : undefined, model: c?.model_name, tcbStatus, advisoryIds };
