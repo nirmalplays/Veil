@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Widget preview</title>
+<style>body{margin:0;font:17px/1.55 system-ui,sans-serif;color:#1d2433;background:#f7f7f5}main{max-width:640px;margin:12vh auto;padding:0 20px}h1{font-size:30px;margin:0 0 10px}.note{background:#fff3cd;border:1px solid #e6d28a;padding:8px 12px;border-radius:6px;font-size:14px}</style>
+</head>
+<body>
+<main>
+  <div class="note">Preview page. Your website goes here; the chat bubble appears at the bottom right.</div>
+  <h1>Your website</h1>
+  <p>This neutral page only hosts the widget, so you can try your workspace the way a visitor would.</p>
+</main>
+<script>/* preview only: ?relay=http://localhost:8790/s/<site> points the widget at a workspace on a local relay */const r=new URLSearchParams(location.search).get("relay");if(r)window.__relay=r;</script>
+<script type="module" src="/src/widget.ts" data-relay="http://localhost:8790" data-accent="#1f3a5f"></script>
+</body>
+</html>

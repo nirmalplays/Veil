@@ -10,6 +10,7 @@
     "test:contract": "cargo test --manifest-path contract/Cargo.toml",
     "verify": "npm --prefix client run verify --",
     "widget:relay": "npm --prefix widget run relay --",
-    "widget:demo": "npm --prefix widget run dev"
+    "widget:demo": "npm --prefix widget run dev",
+    "widget:build": "npm --prefix widget run build"
   }
 }
