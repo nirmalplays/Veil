@@ -1,6 +1,9 @@
 import { useEffect, useRef } from "react";
 import { SealDemo } from "./SealDemo";
 import { CONTRACT, EXPLORER } from "./config";
+
+/** Where the embeddable widget demo runs (a local page: see widget/README.md). */
+const WIDGET_DEMO: string = import.meta.env.VITE_WIDGET_DEMO_URL ?? "http://localhost:5174/demo/index.html";
 import "./landing.css";
 
 const READS: { stage: string; you: string; tee: string; store: string; chain: string; owner: string }[] = [
@@ -8,6 +11,7 @@ const READS: { stage: string; you: string; tee: string; store: string; chain: st
   { stage: "You save the session", you: "Plaintext", tee: "Nothing", store: "Ciphertext", chain: "Hash and pointer", owner: "Nothing" },
   { stage: "You grant consent", you: "Plaintext", tee: "Nothing", store: "Ciphertext", chain: "Hash, expiry, wrapped key", owner: "Can open this one session" },
   { stage: "The owner scores it", you: "Plaintext", tee: "Nothing", store: "Ciphertext", chain: "Score, attestation hash", owner: "Plaintext" },
+  { stage: "A question is answered with it", you: "Plaintext", tee: "Plaintext, inside the enclave (sent encrypted)", store: "Ciphertext", chain: "Round root, if recorded", owner: "Plaintext" },
   { stage: "You revoke", you: "Plaintext", tee: "Nothing", store: "Ciphertext", chain: "Wrapped key deleted", owner: "Excluded from the next answer and round" },
 ];
 
@@ -29,15 +33,15 @@ export function Landing() {
       <header className="lp-nav">
         <a className="lp-brand" href="#/">Veil</a>
         <nav aria-label="Sections">
-          <a href="#how">How it works</a><a href="#architecture">Architecture</a><a href="#useful">Who it helps</a><a href="#usecase">Use case</a>
+          <a href="#verify">Verifiable answers</a><a href="#how">How it works</a><a href="#architecture">Architecture</a><a href="#useful">Who it helps</a><a href="#usecase">Use case</a>
         </nav>
         <a className="btn btn-solid" href="#/app">Open the app</a>
       </header>
 
       <section className="hero">
         <div className="hero-copy">
-          <h1>Chat privately. Decide who gets to use it.</h1>
-          <p className="lede">Veil seals every conversation in your browser. A model owner can read a session only while your consent is live, and anyone can check afterwards exactly which sessions were used.</p>
+          <h1>AI you can check, not just trust.</h1>
+          <p className="lede">Veil encrypts every conversation in your browser to a verified secure enclave. A site can publish the rules its AI follows, and anyone can check that it kept them. Your saved chats are used only while you allow it, and the next answer stops using them the moment you say so.</p>
           <div className="hero-cta">
             <a className="btn btn-solid" href="#/app">Open the app</a>
             <a className="btn btn-line" href="#how">See how a session travels</a>
@@ -53,6 +57,51 @@ export function Landing() {
           <div><h3>Platforms read everything</h3><p>The operator of a chat product can see every prompt. You cannot control who uses it or check what happened.</p></div>
           <div><h3>Model builders can't get honest data</h3><p>Real conversations are the best context a model can have, and the only ways to get them are scraping or taking a company's word.</p></div>
           <div><h3>"Private AI" is mostly a promise</h3><p>Claims about privacy rarely come with something you can verify yourself.</p></div>
+        </div>
+      </section>
+
+      <section className="verify" id="verify">
+        <h2>Rules a site can't quietly change</h2>
+        <p className="sec-lede">A company can say its AI follows rules. Veil lets you check. The site registers its rules on NEAR, the chat widget refuses to run unless the live rules match, and every answer can carry a receipt.</p>
+        <div className="vgrid">
+          <ol className="flow">
+            <li><b>Publish.</b> The site writes its AI's instructions and hard rules, such as “at most 80 words”, “always say it is an AI”, “never output a social security number”. A fingerprint of them goes on NEAR with a version and a date. Each site can also give its assistant its own documents: their fingerprint is registered too, so a tampered copy is refused. The rules themselves stay readable by anyone.</li>
+            <li><b>Match.</b> The widget on the site compares the rules it is about to use with the registered fingerprint. Change a single word without re-registering and the chat switches itself off.</li>
+            <li><b>Enforce.</b> Every reply is checked against the rules before you see it. A reply that breaks one is withheld and replaced with a safe fallback.</li>
+            <li><b>Prove.</b> Ask for a receipt: a signed record that this exact answer came from the verified enclave under the registered rules. Anyone can check it, without trusting the site or us.</li>
+          </ol>
+          <figure className="wmock" aria-label="Illustration of the chat widget on a law firm's site">
+            <div className="wm-head"><b>Harbor &amp; Finch LLP</b><span>Private AI · policy v2 registered on NEAR</span></div>
+            <div className="wm-body">
+              <div className="wm-msg bot">Hello. I'm an AI assistant for Harbor &amp; Finch. I can't give legal advice.</div>
+              <div className="wm-msg me">Can I sue my landlord over my deposit?</div>
+              <div className="wm-msg bot">I'm an AI, so I can't say. Deposit disputes depend on your lease and local law. An attorney can review it: would you like to book a consultation?</div>
+            </div>
+            <ul className="wm-rules" aria-label="Rules checked on every reply">
+              <li>at most 80 words</li><li>mentions “AI”</li><li>never says “guarantee”</li><li>contains no social security number</li>
+            </ul>
+            <figcaption>The widget on a fictional law firm's page. An illustration: the real one runs in the demo below.</figcaption>
+          </figure>
+        </div>
+        <div className="verdicts">
+          <div><h3>Authentic</h3><p>This exchange really went through the attested NEAR AI enclave, and nobody edited it afterwards.</p></div>
+          <div><h3>Obeyed the rules</h3><p>Every rule a program can check held on this exact reply. A reply that broke one still gets a receipt that shows it, so a site cannot hide a violation.</p></div>
+          <div className="not"><h3>What it can't prove</h3><p>Tone and judgement. “Never give legal advice” is an instruction the model can still ignore: a receipt shows that the instruction was sent, not that it was obeyed.</p></div>
+        </div>
+        <div className="hero-cta">
+          <a className="btn btn-solid" href={WIDGET_DEMO}>Try the widget on the demo site</a>
+          <a className="btn btn-line" href="#/app">Verify a receipt in the app</a>
+        </div>
+        <p className="fine">The demo site runs locally: start it with <span className="mono">npm run widget:relay</span> and <span className="mono">npm run widget:demo</span> (see the README).</p>
+      </section>
+
+      <section className="memory" id="memory">
+        <h2>Consent that works on the next answer</h2>
+        <p className="sec-lede">A model owner can answer questions using chats people chose to share. Each question re-checks consent on NEAR, decrypts only what is shared right now, uses only the relevant sessions, and lists them as sources. Nothing is trained, so there is nothing to un-train.</p>
+        <div className="three">
+          <div><h3>Mute, revoke or forget</h3><p>The session is gone from the very next answer. There is no waiting for a training run, and no model weights that kept it.</p></div>
+          <div><h3>Sources, not guesses</h3><p>Every answer says which sessions it used. The owner can anchor that use on NEAR, and each contributor can verify their session was one of them.</p></div>
+          <div><h3>The honest limit</h3><p>The model owner reads what you share. That is what sharing means. Revoking stops future use, and it cannot make them forget what they already read.</p></div>
         </div>
       </section>
 
@@ -156,6 +205,7 @@ export function Landing() {
           <li>Register a model, then grant it consent from "My sessions".</li>
           <li>As the model owner, score the session and anchor the round.</li>
           <li>Open "Verify inclusion" and confirm your session is in the anchored root.</li>
+          <li>Or open the demo law-firm site, chat with its widget, save a receipt, and verify it in the app's Receipts tab.</li>
         </ol>
         <div className="hero-cta">
           <a className="btn btn-solid" href="#/app">Open the app</a>
@@ -164,7 +214,7 @@ export function Landing() {
       </section>
 
       <footer className="lp-foot">
-        <span>Veil. Concept from Veil, rebuilt from scratch on NEAR during the hackathon.</span>
+        <span>Veil. The concept comes from an earlier project; this is a new codebase built on NEAR during the hackathon.</span>
         <span className="mono">{CONTRACT}</span>
       </footer>
     </div>
