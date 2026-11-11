@@ -6,8 +6,9 @@ import { Sessions } from "./Sessions";
 import { Owner } from "./Owner";
 import { Verify } from "./Verify";
 import { Receipts } from "./Receipts";
+import { Workspaces } from "./Workspaces";
 
-type Tab = "chat" | "sessions" | "owner" | "verify" | "receipts";
+type Tab = "chat" | "sessions" | "owner" | "verify" | "receipts" | "workspaces";
 
 export function App() {
   const [account, setAccount] = useState<string>();
@@ -41,7 +42,7 @@ export function App() {
     } catch (e) { setErr(errMsg(e)); }
   };
 
-  const tabs: [Tab, string][] = [["chat", "Chat"], ["sessions", "My sessions"], ["owner", "Model owner"], ["verify", "Verify inclusion"], ["receipts", "Receipts"]];
+  const tabs: [Tab, string][] = [["chat", "Chat"], ["sessions", "My sessions"], ["owner", "Model owner"], ["verify", "Verify inclusion"], ["receipts", "Receipts"], ["workspaces", "Workspaces"]];
   return (
     <div className="app">
       <header className="top">
@@ -64,6 +65,7 @@ export function App() {
       {tab === "owner" && <Owner account={account} />}
       {tab === "verify" && <Verify account={account} />}
       {tab === "receipts" && <Receipts />}
+      {tab === "workspaces" && <Workspaces account={account} />}
     </div>
   );
 }
