@@ -1,0 +1,19 @@
+# Deploy the relay into a TEE with Phala Cloud (dstack):
+#   phala deploy --compose widget/docker-compose.tee.yml --env-file widget/.env
+# The env file is encrypted to the enclave's key before upload, so Phala and the host never see NEARAI_API_KEY or SEAL_SECRET.
+services:
+  relay:
+    image: ${VEIL_RELAY_IMAGE}            # e.g. docker.io/<you>/veil-relay@sha256:<digest>  (use a digest, not a tag)
+    environment:
+      - NEARAI_API_KEY=${NEARAI_API_KEY}
+      - SEAL_SECRET=${SEAL_SECRET}
+      - AUDIT_TOKEN=${AUDIT_TOKEN}
+      - VEIL_SOURCE=${VEIL_SOURCE:-}       # where the image's code comes from, e.g. the public repo commit
+    ports:
+      - "8790:8790"
+    volumes:
+      - /var/run/dstack.sock:/var/run/dstack.sock   # lets the relay ask the TEE for a signed quote (GET /relay-attestation)
+      - sites:/data/sites
+    restart: unless-stopped
+volumes:
+  sites:

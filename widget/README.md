@@ -40,3 +40,14 @@ With `policy.kb.mode: "sealed"` the relay never serves the passages (`/kb` is 40
 - The relay sees metadata (time, IP, message size), and the site owner pays for usage. The relay's rate limit is per IP and in memory.
 - The relay must be hosted by the site owner. This repo ships it as a Node script, not a managed service.
 - Testnet contract only.
+
+## Run the relay inside a TEE
+
+The relay holds your NEAR AI key and the seal secret, so on a normal server whoever runs the machine can read them. Run it in a TEE and they can't.
+
+1. Build and push the image (from the repo root): `docker build -f widget/Dockerfile -t <you>/veil-relay .`, then push it and note its `sha256` digest.
+2. Put `VEIL_RELAY_IMAGE=<you>/veil-relay@sha256:<digest>`, `NEARAI_API_KEY`, `SEAL_SECRET` and `AUDIT_TOKEN` in `widget/.env`.
+3. Deploy with Phala Cloud (dstack): `phala deploy --compose widget/docker-compose.tee.yml --env-file widget/.env`. The env file is encrypted to the enclave before it leaves your machine.
+4. Ask the running relay to prove it: `GET /relay-attestation?nonce=<64 hex characters>` returns an Intel TDX quote that carries your nonce, plus the compose hash of what is running.
+
+Status: the route and the container files are written. The route returns a clear 501 outside a TEE (tested). I have not deployed to Phala yet, so the quote path is untested, and the client does not yet verify the relay's quote the way it verifies the model's.

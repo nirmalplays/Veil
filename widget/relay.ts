@@ -7,7 +7,7 @@
 // first one also answers on the bare paths. Files are re-read on every request, so a workspace saved from the app works at once.
 //
 // Usage: NEARAI_API_KEY=... npx tsx relay.ts [site.json | folder]
-import { createServer, type IncomingMessage, type ServerResponse } from "node:http";
+import { createServer, request as httpRequest, type IncomingMessage, type ServerResponse } from "node:http";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { randomBytes, timingSafeEqual } from "node:crypto";
 import { policyHash, type Policy } from "../client/src/policy.js";
@@ -67,6 +67,18 @@ const safeEq = (a: string, b: string) => { const x = Buffer.from(a), y = Buffer.
 const UPSTREAM = process.env.NEARAI_BASE ?? "https://cloud-api.near.ai";
 const NRAS = "https://nras.attestation.nvidia.com/v3/attest/gpu";
 
+// ---- running inside a TEE (dstack) ----
+const DSTACK_SOCK = process.env.DSTACK_SOCKET ?? "/var/run/dstack.sock";
+/** Where the code running here comes from, so a verifier knows what the attested compose hash should be built from. */
+const SOURCE = process.env.VEIL_SOURCE ?? null;
+const dstack = (path: string, body: unknown) => new Promise<unknown>((ok, no) => {
+  const r = httpRequest({ socketPath: DSTACK_SOCK, path, method: "POST", headers: { "Content-Type": "application/json" } }, (res) => {
+    const c: Buffer[] = []; res.on("data", (d: Buffer) => c.push(d));
+    res.on("end", () => { try { ok(JSON.parse(Buffer.concat(c).toString("utf8"))); } catch (e) { no(e); } });
+  });
+  r.on("error", no); r.end(JSON.stringify(body ?? {}));
+});
+
 const hits = new Map<string, number[]>();
 const limited = (ip: string, rate = 20) => {
   const now = Date.now(), a = (hits.get(ip) ?? []).filter((t) => now - t < 60_000);
@@ -99,6 +111,18 @@ createServer(async (req, res) => {
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Access-Control-Max-Age": "600",
         "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Signing-Algo, X-Client-Pub-Key, X-Model-Pub-Key, X-Encryption-Version, x-no-aliasing" }).end();
       return;
+    }
+    // Proof of where this relay runs. Inside a dstack TEE (Phala Cloud) the guest agent signs a fresh Intel TDX quote that
+    // carries the caller's nonce, so a visitor can check the relay holding the API key and seal secret is the published code in an enclave.
+    if (req.method === "GET" && rawUrl.pathname === "/relay-attestation") {
+      const nonce = rawUrl.searchParams.get("nonce") ?? "";
+      if (!/^[0-9a-f]{64}$/.test(nonce)) return err(400, "nonce must be 64 hex characters");
+      if (!existsSync(DSTACK_SOCK)) return err(501, "this relay is not running inside a TEE (no dstack socket), so there is nothing to attest");
+      const [quote, info] = await Promise.all([
+        dstack("/GetQuote", { report_data: nonce }),
+        dstack("/Info", undefined),
+      ]);
+      return send(200, JSON.stringify({ nonce, quote, info, source: SOURCE }));
     }
     if (!chosen) return err(404, "unknown site");
     if (!originOk) return err(403, "origin not allowed");
