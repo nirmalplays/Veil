@@ -123,3 +123,11 @@ td.plain { background: color-mix(in srgb, var(--tape) 42%, transparent); color: 
 .verdicts h3 { font-size: 20px; margin: 0 0 6px; letter-spacing: -0.02em; } .verdicts p { margin: 0; color: var(--ink-2); font-size: 16px; }
 .verdicts .not { background: color-mix(in srgb, var(--tape) 38%, transparent); }
 @media (max-width: 800px) { .verdicts { grid-template-columns: 1fr; } .verdicts > div { border-left: none; border-top: 1px solid var(--rule); padding-left: 0; } }
+
+.proofs { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; padding: 0; margin: 20px 0 0; }
+.proofs li { border: 1px solid currentColor; border-radius: 999px; padding: 4px 12px; font-size: 0.85rem; opacity: 0.85; }
+.faq { max-width: 760px; }
+.faq details { border-top: 1px solid rgba(128,128,128,.35); padding: 14px 0; }
+.faq details:last-child { border-bottom: 1px solid rgba(128,128,128,.35); }
+.faq summary { cursor: pointer; font-weight: 600; }
+.faq p { margin: 10px 0 0; }

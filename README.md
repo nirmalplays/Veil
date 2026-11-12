@@ -1,16 +1,33 @@
 # Veil
 
-Private AI chat where each session is encrypted in the browser, and a model owner can use it (as scored data and as retrieval context for answers) only while the user's consent is live. Sites can publish the rules their AI follows, and every answer can come with a signed receipt. Consent, scores, rounds and policies are recorded on NEAR. Nothing is trained or fine-tuned. Built for NEAR HACKATHON, track **Privacy & Private AI**.
+**AI you can check, not just trust.**
 
-## Problem
-People chat with AI models about sensitive work. The platform sees every prompt, model builders can only get that data on trust, and "private AI" claims are rarely checkable. Veil keeps sessions unreadable to the operator, lets the user decide per session who may use it, and makes the rest checkable.
+Every AI company says it protects your data. Veil lets you verify it. Your messages are encrypted in your browser to a hardware-attested enclave, the rules a business gives its AI are fingerprinted on NEAR, and every answer can come with a signed receipt anyone can check.
 
-## What it does
+Built for NEAR HACKATHON, track **Privacy & Private AI**.
+
+## Why Veil
+- **Private by construction.** Prompts are end-to-end encrypted to a key the app has verified belongs to an Intel TDX + NVIDIA confidential-computing enclave. The operator, the host site and the network see ciphertext.
+- **Rules that can't quietly change.** A site's prompt and checkable rules are hashed and registered on NEAR. The widget refuses to run if what is served doesn't match the registry, and withholds any reply that breaks a rule.
+- **Proof for every answer.** An opt-in signed receipt shows an answer came from the attested enclave under the registered policy.
+- **Your data, your call.** Share a saved session with a model for a set time, then mute, revoke or forget it. Consent is enforced by a contract. Nothing is trained: "using" a session means retrieval, so a revoked session is gone from the very next answer.
+- **Your own knowledge base per workspace.** Public passages anyone can verify, semantic search in a TEE, or a sealed base only the enclave reads.
+- **One script tag.** Paste a single JavaScript file into any website.
+
+## How it works
 1. **Chat in a TEE.** Prompts go to NEAR AI Cloud, encrypted end to end to the model's attested key. The app verifies the attestation first (see "Attestation verification").
 2. **Seal.** A saved session is AES-256-GCM encrypted in the browser. Only its hash and a pointer go on-chain.
 3. **Consent.** The user shares a session with one model for a period, pins it, mutes it, revokes it or forgets it. The contract enforces every state.
-4. **Use.** The model owner decrypts only sessions with live consent. They can score them, and answer questions using the relevant ones as context (private retrieval). Each scored or used batch can be anchored as a Merkle-rooted round. No model weights change, so revoking, muting or forgetting a session removes it from the very next answer.
-5. **Verify.** Anyone can check that a session is (or is not) a leaf of an anchored round.
+4. **Use.** The model owner decrypts only sessions with live consent. They can score them, and answer questions using the relevant ones as context (private retrieval). Each scored or used batch can be anchored as a Merkle-rooted round.
+5. **Verify.** Anyone can check that a session is (or is not) a leaf of an anchored round, and that an answer's receipt matches its registered policy.
+
+## Trust model
+Veil doesn't ask you to trust it, so here is exactly what you rely on and what you can check yourself.
+- **You check:** the enclave's hardware attestation (Intel TDX and every NVIDIA GPU), the registered policy hash, knowledge-base fingerprints, and each receipt's signature.
+- **You rely on:** the TEE vendors' hardware, NEAR AI Cloud's published enclave images, and your own site owner for the relay that holds the API key.
+- **A model owner** sees the plaintext of a session you share with them, because that is what consent means. Forgetting or muting stops future use; a round already recorded on-chain stays as a record.
+- **Testnet.** The contract runs on NEAR testnet and the built-in wallet is for demos, not real funds. No zero-knowledge proofs are used, and nothing here claims "zero data leakage".
+- **Consent wording** is a product feature, not legal advice.
 
 ## NEAR tech used
 - **Smart contract (near-sdk-rs)** on testnet, [`veil-31da02.testnet`](https://explorer.testnet.near.org/accounts/veil-31da02.testnet): model registry, session commitments, consent (expiry, pin, mute, revoke, forget), eval records, per-round Merkle roots.
@@ -117,7 +134,7 @@ The app has no backend of its own that sees prompts or replies. Nothing is kept 
 | The embedded widget (in a visitor's browser) | The conversation, in the tab. No cookies, no localStorage. | The visitor |
 | NVIDIA forwarder (the `blob-gate` function when deployed, else the Vite dev server's `/nras` proxy) | Forwards NVIDIA's public attestation evidence, which carries a nonce and no user data, to one fixed NVIDIA URL. Stateless, and it cannot forge a verdict. | No |
 
-A model owner can read a session only after the user grants consent, and keeps a copy once decrypted (see "Limits").
+A model owner can read a session only after the user grants consent, and keeps a copy once decrypted.
 
 ## Attestation verification
 `client/src/verify.ts` follows the NEAR AI verification guide. For a fresh nonce it checks the **model** (below), then the **gateway** attestation in the same report with the same quote, key-binding, RTMR3 and compose checks (the docs name it the first step; the example verifier reads only its address). After a completion, the **response signature** is checked in `receipt.ts` in both formats the API uses: `provider_tee` (the model's key, signed text `model:requestHash:responseHash`) and `gateway` (the gateway's key, `requestHash:responseHash`). The checks follow the `near-ai-cloud` agent skill from `near/agent-skills` (read from its source) and its reference files on model, gateway and chat verification. Not implemented: the TLS binding (a connection-level check a browser cannot make), Sigstore build provenance (the verifier lists the container image digests each enclave attests to, so they can be looked up on search.sigstore.dev, and marks the step "not verified"), and a pinned list of approved app versions. For the model:
@@ -196,13 +213,7 @@ The helper `consentState()` in `client/src/consent.ts` turns a consent record in
 
 In the web app, each session card has Share, Pin, Mute/Unmute, Revoke and Forget. Forget asks for confirmation, calls `forget_session`, deletes our copy of the encrypted blob and then shows **What remains after forgetting**, built by `forgetResidue()`: which rounds already included the session, any recorded score, the wrapped key still in chain history, whether the blob is really gone (checked by fetching it), and the one thing that can't be measured, a model owner's own copy. In this build the blob store is a local dev server that supports delete.
 
-## Limits
-- Revoke, mute and forget stop future use only. A round that already used a session stays on-chain as a record, and a model owner who already decrypted a session keeps what they read.
-- Storage is centralised. It holds only ciphertext, but it can go down or lose a blob. That is not a NEAR guarantee. The Supabase path is built and its gate logic is tested against a local stand-in; it has not been run against a live Supabase project yet.
-- No zero-knowledge proofs, and no claim of "zero data leakage".
-- Testnet only. The inline wallet keeps a throwaway key in localStorage. Do not use it for real funds.
-- The scorer is a relevance rating by a model (or the mock). It is not a measure of data quality. No model is trained or fine-tuned anywhere in this project (NEAR AI Cloud has no fine-tuning API); "using" a session means retrieval, and retrieval is keyword-based (BM25), not semantic.
-- Consent wording is not legal advice.
+
 
 ## Libraries and AI assistance
 The code was written with AI assistance (Claude Code) and reviewed and tested by the author. Libraries: `near-sdk` (Rust); `near-api-js`, `@near-wallet-selector/*`, `@noble/curves`, `@noble/hashes`, `@noble/ciphers`, `@phala/dcap-qvl`, `buffer`, React and Vite (TypeScript). The consent model, contract, client and web app are original to this repository. Models used for demos: a local Ollama `gemma2:2b` stand-in and NEAR AI Cloud's `z-ai/glm-5.3-flash`.

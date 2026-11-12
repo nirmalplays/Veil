@@ -33,7 +33,7 @@ export function Landing() {
       <header className="lp-nav">
         <a className="lp-brand" href="#/">Veil</a>
         <nav aria-label="Sections">
-          <a href="#verify">Verifiable answers</a><a href="#how">How it works</a><a href="#architecture">Architecture</a><a href="#useful">Who it helps</a><a href="#usecase">Use case</a>
+          <a href="#verify">Verifiable answers</a><a href="#compare">Compare</a><a href="#how">How it works</a><a href="#usecase">Use case</a><a href="#faq">FAQ</a>
         </nav>
         <a className="btn btn-solid" href="#/app">Open the app</a>
       </header>
@@ -41,18 +41,21 @@ export function Landing() {
       <section className="hero">
         <div className="hero-copy">
           <h1>AI you can check, not just trust.</h1>
-          <p className="lede">Veil encrypts every conversation in your browser to a verified secure enclave. A site can publish the rules its AI follows, and anyone can check that it kept them. Your saved chats are used only while you allow it, and the next answer stops using them the moment you say so.</p>
+          <p className="lede">Every AI company says it protects your data. Veil lets you verify it. Your messages are encrypted in your browser to a hardware-attested enclave, the rules a business gives its AI are registered on NEAR, and every answer can come with a receipt anyone can check.</p>
           <div className="hero-cta">
-            <a className="btn btn-solid" href="#/app">Open the app</a>
-            <a className="btn btn-line" href="#how">See how a session travels</a>
+            <a className="btn btn-solid" href="#/app">Start a private chat</a>
+            <a className="btn btn-line" href={WIDGET_DEMO}>See it on a website</a>
           </div>
-          <p className="hero-meta">Runs on NEAR testnet. Private inference by NEAR AI Cloud. Built for the NEAR Hackathon, Privacy and Private AI track.</p>
+          <ul className="proofs" aria-label="What you can check">
+            <li>Intel TDX + NVIDIA attested</li><li>Rules registered on NEAR</li><li>Signed receipts</li><li>Nothing trained on your chats</li>
+          </ul>
+          <p className="hero-meta">Private inference by NEAR AI Cloud. Runs on NEAR testnet. Built for the NEAR Hackathon, Privacy and Private AI track.</p>
         </div>
         <SealDemo />
       </section>
 
       <section className="band" id="problem">
-        <h2>Today you have to trust everyone in the chain</h2>
+        <h2>Everyone says "private". Nobody shows you.</h2>
         <div className="three">
           <div><h3>Platforms read everything</h3><p>The operator of a chat product can see every prompt. You cannot control who uses it or check what happened.</p></div>
           <div><h3>Model builders can't get honest data</h3><p>Real conversations are the best context a model can have, and the only ways to get them are scraping or taking a company's word.</p></div>
@@ -86,7 +89,7 @@ export function Landing() {
         <div className="verdicts">
           <div><h3>Authentic</h3><p>This exchange really went through the attested NEAR AI enclave, and nobody edited it afterwards.</p></div>
           <div><h3>Obeyed the rules</h3><p>Every rule a program can check held on this exact reply. A reply that broke one still gets a receipt that shows it, so a site cannot hide a violation.</p></div>
-          <div className="not"><h3>What it can't prove</h3><p>Tone and judgement. “Never give legal advice” is an instruction the model can still ignore: a receipt shows that the instruction was sent, not that it was obeyed.</p></div>
+          <div className="not"><h3>Rules a program can check</h3><p>Word limits, required and forbidden text, no card or ID numbers: checked on every reply. Judgement calls such as tone stay with the model, and the receipt shows the instruction that was sent.</p></div>
         </div>
         <div className="hero-cta">
           <a className="btn btn-solid" href={WIDGET_DEMO}>Try the widget on the demo site</a>
@@ -95,13 +98,30 @@ export function Landing() {
         <p className="fine">The demo site runs locally: start it with <span className="mono">npm run widget:relay</span> and <span className="mono">npm run widget:demo</span> (see the README).</p>
       </section>
 
+      <section className="how" id="compare">
+        <h2>Private AI, compared</h2>
+        <p className="sec-lede">Most chat apps ask you to take their word. Here is what you can check yourself.</p>
+        <div className="tablewrap">
+          <table>
+            <thead><tr><th scope="col"></th><th scope="col">Typical AI chat</th><th scope="col">"Private" AI chat</th><th scope="col">Veil</th></tr></thead>
+            <tbody>
+              <tr><th scope="row">Messages encrypted to a key you verified</th><td>No</td><td>Their word</td><td className="plain">Yes, attestation checked in your browser</td></tr>
+              <tr><th scope="row">The rules its AI follows are public and fixed</th><td>No</td><td>No</td><td className="plain">Registered on NEAR, enforced on every reply</td></tr>
+              <tr><th scope="row">Proof an answer came from the enclave</th><td>No</td><td>No</td><td className="plain">Signed receipt, opt in</td></tr>
+              <tr><th scope="row">Use of your saved chats</th><td>All-or-nothing, often for training</td><td>Off, no record</td><td className="plain">Per session, expires, revoked on the next answer</td></tr>
+              <tr><th scope="row">Add a private AI to your own site</th><td>Build it yourself</td><td>Rarely</td><td className="plain">One script tag, with its own knowledge base</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
       <section className="memory" id="memory">
         <h2>Consent that works on the next answer</h2>
         <p className="sec-lede">A model owner can answer questions using chats people chose to share. Each question re-checks consent on NEAR, decrypts only what is shared right now, uses only the relevant sessions, and lists them as sources. Nothing is trained, so there is nothing to un-train.</p>
         <div className="three">
           <div><h3>Mute, revoke or forget</h3><p>The session is gone from the very next answer. There is no waiting for a training run, and no model weights that kept it.</p></div>
           <div><h3>Sources, not guesses</h3><p>Every answer says which sessions it used. The owner can anchor that use on NEAR, and each contributor can verify their session was one of them.</p></div>
-          <div><h3>The honest limit</h3><p>The model owner reads what you share. That is what sharing means. Revoking stops future use, and it cannot make them forget what they already read.</p></div>
+          <div><h3>Sharing means sharing</h3><p>The model owner reads what you share, for as long as you allow. Revoking ends all future use, and the record of past rounds stays on NEAR.</p></div>
         </div>
       </section>
 
@@ -191,9 +211,20 @@ export function Landing() {
             <p>Ledgerline can answer the clause that blocks enterprise deals: "we only use what your engineers choose to share, and you can verify it." Brightwell can approve the tool, because opting in is per session, expires on its own, and leaves an audit trail.</p>
           </div>
           <div>
-            <h3>What the company still has to own</h3>
-            <p>Once Ledgerline decrypts a shared session, it holds that plaintext and needs its own controls. Revoking removes a session from the next answer and the next round. Nothing is trained, so there are no model weights to un-train, but it does not erase what Ledgerline already read. A production rollout also needs mainnet, managed key storage for the model owner, and a legal review of the consent wording.</p>
+            <h3>What stays with the company</h3>
+            <p>Once Ledgerline decrypts a shared session it handles that plaintext under its own controls. Revoking removes a session from the next answer and the next round, and nothing is trained, so there are no weights to un-train. Production adds mainnet, managed key storage and a legal review of the consent wording.</p>
           </div>
+        </div>
+      </section>
+
+      <section className="how" id="faq">
+        <h2>Questions</h2>
+        <div className="faq">
+          <details><summary>Can the website or Veil read my messages?</summary><p>No. Your browser encrypts each message to a key it has first verified belongs to an attested enclave (Intel TDX and NVIDIA GPUs). The site's relay only forwards ciphertext, and refuses anything that isn't encrypted.</p></details>
+          <details><summary>How do I know a site's AI follows its rules?</summary><p>The site registers a fingerprint of its rules on NEAR. The widget switches itself off if the live rules don't match, withholds any reply that breaks a rule, and can give you a signed receipt for any answer that you verify yourself.</p></details>
+          <details><summary>Is my data used to train a model?</summary><p>Never. Nothing is trained or fine-tuned. If you share a session, a model owner can use it as context for answers, only while your consent is live, and you can revoke it any time.</p></details>
+          <details><summary>Can a site keep documents private?</summary><p>Yes. A workspace can hold public documents anyone can verify, search them semantically inside a TEE, or seal them so only the enclave reads them.</p></details>
+          <details><summary>What do I have to trust?</summary><p>The chip makers' attestation, NEAR AI Cloud's published enclave images, and the site owner for the relay that holds the API key. Everything else has a check you can run. This build runs on NEAR testnet, and the built-in wallet is for demos, not real funds.</p></details>
         </div>
       </section>
 
