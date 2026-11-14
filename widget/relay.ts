@@ -10,6 +10,7 @@
 import { createServer, request as httpRequest, type IncomingMessage, type ServerResponse } from "node:http";
 import { existsSync, readdirSync, readFileSync, statSync } from "node:fs";
 import { randomBytes, timingSafeEqual } from "node:crypto";
+import { fileURLToPath } from "node:url";
 import { policyHash, type Policy } from "../client/src/policy.js";
 import { sealKnowledgeBase } from "../client/src/seal.js";
 import { verifyModelAttestation } from "../client/src/verify.js";
@@ -30,7 +31,7 @@ export interface Site {
 
 const KEY = process.env.NEARAI_API_KEY;
 if (!KEY) { console.error("Set NEARAI_API_KEY (from https://cloud.near.ai). It stays on this server."); process.exit(2); }
-const here = (p: string) => new URL(p, import.meta.url).pathname;
+const here = (p: string) => fileURLToPath(new URL(p, import.meta.url));   // not .pathname: that keeps %20 for spaces and a leading / on Windows
 const arg = process.argv[2];
 const readSites = (): Site[] => {
   const files: string[] = [];
@@ -74,7 +75,11 @@ const SOURCE = process.env.VEIL_SOURCE ?? null;
 const dstack = (path: string, body: unknown) => new Promise<unknown>((ok, no) => {
   const r = httpRequest({ socketPath: DSTACK_SOCK, path, method: "POST", headers: { "Content-Type": "application/json" } }, (res) => {
     const c: Buffer[] = []; res.on("data", (d: Buffer) => c.push(d));
-    res.on("end", () => { try { ok(JSON.parse(Buffer.concat(c).toString("utf8"))); } catch (e) { no(e); } });
+    res.on("end", () => {
+      const text = Buffer.concat(c).toString("utf8");
+      if ((res.statusCode ?? 500) >= 300) return no(new Error(`dstack ${path} answered ${res.statusCode}: ${text.slice(0, 200)}`));
+      try { ok(JSON.parse(text)); } catch (e) { no(e); }
+    });
   });
   r.on("error", no); r.end(JSON.stringify(body ?? {}));
 });
@@ -112,7 +117,7 @@ createServer(async (req, res) => {
         "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Signing-Algo, X-Client-Pub-Key, X-Model-Pub-Key, X-Encryption-Version, x-no-aliasing" }).end();
       return;
     }
-    // Proof of where this relay runs. Inside a dstack TEE (Phala Cloud) the guest agent signs a fresh Intel TDX quote that
+    // Proof of where this relay runs. Inside a dstack TEE (Intel TDX confidential VM) the guest agent signs a fresh Intel TDX quote that
     // carries the caller's nonce, so a visitor can check the relay holding the API key and seal secret is the published code in an enclave.
     if (req.method === "GET" && rawUrl.pathname === "/relay-attestation") {
       const nonce = rawUrl.searchParams.get("nonce") ?? "";

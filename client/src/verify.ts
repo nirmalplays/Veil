@@ -59,6 +59,14 @@ export async function checkTdBinding(c: any, nonce: string, td: TdFields, who: W
   out.push(eq(td.reportData, wantRd)
     ? { id: `${who.idPrefix}report-data`, state: "ok", label: L(`Quote binds the ${who.noun} key and our nonce`), detail: `REPORT_DATA from the verified quote equals the ${who.noun}'s signing key followed by our fresh nonce.` }
     : { id: `${who.idPrefix}report-data`, state: "failed", label: L(`Quote binds the ${who.noun} key and our nonce`), detail: "REPORT_DATA in the verified quote does not match the model key and nonce. This key is not proven to live in this enclave." });
+  out.push(...(await checkMeasurements(c, td, who)));
+  return out;
+}
+
+/** RTMR3 replay and compose hash, given the TD fields from a verified quote. Shared by the model, the gateway and the relay. */
+export async function checkMeasurements(c: any, td: TdFields, who: Who): Promise<Check[]> {
+  const out: Check[] = [];
+  const L = (l: string) => who.labelPrefix + l;
   try {
     const ti = asObj(c.info?.tcb_info);
     const events = c.event_log ?? ti?.event_log;
@@ -72,6 +80,42 @@ export async function checkTdBinding(c: any, nonce: string, td: TdFields, who: W
       : { id: `${who.idPrefix}mr-config`, state: "failed", label: L("Docker compose matches the quote's MRCONFIGID"), detail: "The compose file served with the report is not the one the hardware measured." });
   } catch (e) {
     out.push({ id: `${who.idPrefix}rtmr3`, state: "failed", label: L("Event log and compose measurements"), detail: e instanceof Error ? e.message : String(e) });
+  }
+  return out;
+}
+
+/**
+ * REPORT_DATA a relay must carry: dstack's guest agent zero-pads report_data on the right to 64 bytes (pad64 in guest-agent/src/rpc_service.rs),
+ * so the quote binds nonce || 32 zero bytes.
+ */
+export function relayBindingOk(td: TdFields, nonce: string): boolean {
+  return eq(td.reportData, cat(fromHex(nonce), new Uint8Array(32)));
+}
+
+/**
+ * Check on a relay's GET /relay-attestation answer. Same chain as the model's, minus the signing key: Intel confirms the quote, the TD is not
+ * in debug mode, the quote binds our nonce, and the event log and compose the relay reports are the ones the hardware measured.
+ * The relay attests where it runs. It has no signing key of its own to pin.
+ */
+export async function verifyRelayAttestation(r: any, nonce: string): Promise<Check[]> {
+  const L = (l: string) => `Relay: ${l}`;
+  const echoed = r?.nonce === nonce;
+  const out: Check[] = [{ id: "relay-nonce", state: echoed ? "ok" : "failed", label: L("our fresh nonce is echoed (not a replay)"), detail: echoed ? "The relay returned the nonce we just generated." : "The relay returned a different nonce." }];
+  const quote = r?.quote?.quote;
+  if (!quote) return [...out, { id: "relay-intel", state: "failed", label: L("Intel confirms the quote came from genuine TDX hardware"), detail: "The relay returned no quote. It is probably not running inside a TEE." }];
+  try {
+    const v: any = await getCollateralAndVerify(fromHex(quote));
+    const d = v.report?.data;
+    if (!d) throw new Error("verified relay quote has no TD10 report");
+    out.push({ id: "relay-intel", state: ACCEPTED_TCB.includes(v.status) ? "ok" : "failed", label: L("Intel confirms the quote came from genuine TDX hardware"), detail: `TCB status: ${v.status}.` });
+    const debug = (d.tdAttributes[0] & 1) === 1;
+    out.push({ id: "relay-debug", state: debug ? "failed" : "ok", label: L("enclave is not in debug mode"), detail: debug ? "The debug bit is set." : "TD attributes show production mode." });
+    const td: TdFields = { reportData: d.reportData, mrConfigId: d.mrConfigId, rtMr3: d.rtMr3, tdAttributes: d.tdAttributes };
+    const bound = relayBindingOk(td, nonce);
+    out.push({ id: "relay-report-data", state: bound ? "ok" : "failed", label: L("Quote binds our nonce"), detail: bound ? "REPORT_DATA from the verified quote equals our nonce, so this quote was made for this check." : "REPORT_DATA in the verified quote does not match our nonce. The quote may be a replay." });
+    out.push(...(await checkMeasurements({ info: r.info, event_log: r.quote?.event_log }, td, { key: "", noun: "relay", idPrefix: "relay-", labelPrefix: "Relay: " })));
+  } catch (e) {
+    out.push({ id: "relay-intel", state: "failed", label: L("Intel confirms the quote came from genuine TDX hardware"), detail: e instanceof Error ? e.message : String(e) });
   }
   return out;
 }

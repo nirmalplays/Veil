@@ -9,7 +9,7 @@ import { makeReceipt, redact, verifyReceipt, type Receipt } from "@client/receip
 import { checkRules, describeRule, policyHash, type Policy } from "@client/policy";
 import { buildKbPrompt, kbEvidence, kbSemantic, retrieve, verifyKb, type KbChunk, type KbEvidence, type KbHit } from "@client/kb";
 import { Embedder } from "@client/embed";
-import type { FullVerification } from "@client/verify";
+import type { Check, FullVerification } from "@client/verify";
 
 interface Site { siteId: string; title: string; greeting: string; policy: Policy; fallback?: string; model: string; contract: string; receipts: "off" | "visitor"; maxTokens: number }
 interface Registered { version: number; policy_hash: string; recorded_ms: number }
@@ -92,6 +92,21 @@ function boot(site: Site) {
     if (!r.ok) throw new Error(`the site could not seal its knowledge base to the enclave (${r.status})`);
     const { content } = (await r.json()) as { content: string }; sealCache.set(modelKey, content); return content;
   };
+  // The relay holds the site's API key and seal secret. If it runs in a TEE it can prove it (GET /relay-attestation); the visitor checks on demand.
+  // This never blocks the chat: messages are encrypted to the model's enclave either way, so a relay outside a TEE still cannot read them.
+  let relayTee: { busy?: boolean; text?: string; checks?: Check[] } = {};
+  const checkRelay = async () => {
+    relayTee = { busy: true }; render();
+    try {
+      const nonce = Array.from(crypto.getRandomValues(new Uint8Array(32)), (b) => b.toString(16).padStart(2, "0")).join("");
+      const r = await fetch(`${relay}/relay-attestation?nonce=${nonce}`);
+      if (r.status === 501) relayTee = { text: `not in a TEE. Whoever runs its server could read the site's API key${sealedMode ? " and its sealed knowledge base" : ""}. Your messages are still encrypted to the enclave, so the relay cannot read them.` };
+      else if (!r.ok) relayTee = { text: `could not be checked (it answered ${r.status}).` };
+      else relayTee = { checks: await (await import("@client/verify")).verifyRelayAttestation(await r.json(), nonce) };
+    } catch (e) { relayTee = { text: `could not be checked (${e instanceof Error ? e.message : e}).` }; }
+    render();
+  };
+
   const embedModel = sealedMode ? undefined : site.policy.kb?.embed?.model;
   let retrievalMode = embedModel ? "semantic" : "keyword";
   const embedder = embedModel ? new Embedder(ai, embedModel, async (report, nonce) => (await import("@client/verify")).verifyModelAttestation(report, nonce, { nrasProxy: `${relay}/nras` })) : undefined;
@@ -133,6 +148,13 @@ function boot(site: Site) {
         : "Search: keyword matching in your browser."));
       box.append(h("div", {}, enclave ? "Enclave: " : "Enclave: not checked yet (checked when you send a message)."));
       for (const c of enclave?.checks ?? []) box.append(h("div", { class: c.state === "ok" ? "ok" : c.state === "failed" ? "bad" : "" , textContent: `${c.state === "ok" ? "✓" : c.state === "failed" ? "✗" : "–"} ${c.label}` }));
+      const relayOk = !!relayTee.checks?.length && relayTee.checks.every((c) => c.state === "ok");
+      const relayRow = h("div", { class: relayTee.checks ? (relayOk ? "ok" : "bad") : "" }, relayTee.busy ? "Relay: checking…"
+        : relayTee.checks ? (relayOk ? "Relay: runs the measured code inside a TEE ✓" : "Relay: its TEE proof did not check out ✗")
+        : relayTee.text ? `Relay: ${relayTee.text}` : "Relay: not checked.");
+      if (!relayTee.busy && !relayTee.checks && !relayTee.text) relayRow.append(h("button", { type: "button", textContent: "Check the relay", onclick: () => void checkRelay() }));
+      box.append(relayRow);
+      for (const c of relayTee.checks ?? []) box.append(h("div", { class: c.state === "ok" ? "ok" : c.state === "failed" ? "bad" : "", textContent: `${c.state === "ok" ? "✓" : c.state === "failed" ? "✗" : "–"} ${c.label.replace(/^Relay: /, "")}`, title: c.detail }));
     }
     if (showLog) {
       box.append(h("b", { textContent: "Receipts" }));
