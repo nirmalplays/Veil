@@ -1,5 +1,16 @@
-// Scroll and pointer effects, in the reference site's vocabulary. Everything is skipped when the visitor asks for reduced motion.
-export const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+// Scroll and pointer effects, in the reference site's vocabulary.
+// Motion is on by default, like the reference site: Windows reports "reduce motion" whenever its animation effects are off (common on
+// servers and remote desktops), which would leave the page static for people who never asked for that. The footer's "Reduce motion"
+// switch turns everything off and is remembered in this browser.
+const MOTION_KEY = "veil-motion";
+const stored = (() => { try { return localStorage.getItem(MOTION_KEY); } catch { return null; } })();
+export const reduced = stored === "reduce";
+document.documentElement.dataset.motion = reduced ? "reduce" : "full";
+export function setMotion(reduce: boolean) {
+  try { localStorage.setItem(MOTION_KEY, reduce ? "reduce" : "full"); } catch { /* storage blocked: applies to this page only */ }
+  document.documentElement.dataset.motion = reduce ? "reduce" : "full";
+  location.reload();
+}
 const fine = matchMedia("(hover: hover) and (pointer: fine)").matches;
 const q = <T extends Element = HTMLElement>(s: string, r: ParentNode = document) => Array.from(r.querySelectorAll<T & HTMLElement>(s));
 const clamp = (v: number, a: number, b: number) => Math.min(b, Math.max(a, v));
@@ -33,6 +44,18 @@ export function initFx() {
     h.innerHTML = lines.map((l) => `<span class="ln"><span>${l}</span></span>`).join("");
   });
 
+  // veiled words: ciphertext until read
+  const veiled = q(".veiled");
+  const scramble = (t: string) => t.split("").map((c) => (c === " " ? " " : GLYPHS[(Math.random() * 16) | 0])).join("");
+  const reveal = (v: HTMLElement) => { v.classList.add("cipher"); return decrypt(v, v.dataset.text, 38).then(() => v.classList.remove("cipher")); };
+  veiled.forEach((v) => { v.dataset.text = v.textContent ?? ""; v.setAttribute("aria-label", v.dataset.text); });
+  if (!reduced && "IntersectionObserver" in window) {
+    veiled.forEach((v) => { v.textContent = scramble(v.dataset.text!); v.classList.add("cipher"); });
+    const iov = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { iov.unobserve(en.target); setTimeout(() => reveal(en.target as HTMLElement), 350); } }), { rootMargin: "0px 0px -15% 0px" });
+    veiled.forEach((v) => iov.observe(v));
+    if (fine) veiled.forEach((v) => { let busy = false; v.addEventListener("mouseenter", () => { if (busy || v.classList.contains("cipher")) return; busy = true; v.textContent = scramble(v.dataset.text!); reveal(v).then(() => (busy = false)); }); });
+  }
+
   if (!reduced && "IntersectionObserver" in window) {
     const below = (e: Element) => e.getBoundingClientRect().top > innerHeight * 0.92;
     const ins = q("[data-in]").filter(below), splits = q("[data-split]");
@@ -54,7 +77,7 @@ export function initFx() {
     if (!p.dataset.wDone) {
       // wrap words in text nodes only, so inline markup such as <em> survives
       p.dataset.wDone = "1";
-      const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT), texts: Text[] = [];
+      const walker = document.createTreeWalker(p, NodeFilter.SHOW_TEXT, { acceptNode: (n) => (n.parentElement?.closest(".veiled") ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT) }), texts: Text[] = [];
       while (walker.nextNode()) texts.push(walker.currentNode as Text);
       for (const t of texts) {
         const frag = document.createDocumentFragment();

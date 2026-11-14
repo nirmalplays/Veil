@@ -6,13 +6,13 @@
 .controls { border-radius: 26px; padding: clamp(18px, 2vw, 26px); display: flex; flex-direction: column; gap: 14px }
 .q-row { display: flex; gap: 10px; flex-wrap: wrap }
 .q-row input { flex: 1 1 320px; min-width: 0; height: 52px; padding: 0 20px; border-radius: 999px; border: 0; outline: 0; background: rgba(255, 255, 255, .06); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14); color: #fff; font-size: 16px }
-.q-row input:focus { box-shadow: inset 0 0 0 1px var(--veil), 0 0 0 4px hsl(272 85% 62% / .18) }
+.q-row input:focus { box-shadow: inset 0 0 0 1px var(--veil), 0 0 0 4px hsl(252 92% 68% / .18) }
 .q-row .btn { height: 52px }
 .ctl-row { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 12px }
 .status { display: flex; align-items: center; gap: 10px; font-size: 13px; color: var(--mist); min-height: 24px }
 .sd { width: 8px; height: 8px; border-radius: 50%; background: var(--faint); flex: none }
 .sd.ok { background: var(--ok); box-shadow: 0 0 10px var(--ok) } .sd.fail { background: var(--fail); box-shadow: 0 0 10px var(--fail) } .sd.warn { background: var(--warn) }
-.sd.step, .sd.data { background: hsl(272 90% 75%) }
+.sd.step, .sd.data { background: hsl(252 95% 75%) }
 @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1) } 50% { opacity: .35; transform: scale(.7) } }
 .sd.busy { background: var(--veil); box-shadow: 0 0 12px var(--veil); animation: pulse 1s ease-in-out infinite }
 .ctl-right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap }
@@ -27,8 +27,8 @@
 .stage { min-width: 118px; display: flex; flex-direction: column; gap: 4px; padding: 12px 12px 10px; border-radius: 16px; border: 0; text-align: left; cursor: pointer; background: rgba(255, 255, 255, .03); box-shadow: inset 0 0 0 1px var(--line); color: var(--faint); transition: background .3s, color .3s, box-shadow .3s }
 .stage .sn { font-size: 10px; letter-spacing: .2em } .stage .st { font-size: 13px; font-weight: 500; line-height: 1.25; color: inherit } .stage .sv { font-size: 10.5px; letter-spacing: .04em }
 .stage[data-state] { color: #fff }
-.stage[data-state="active"] { background: hsl(272 85% 62% / .14); box-shadow: inset 0 0 0 1px hsl(272 85% 62% / .6) }
-.stage[data-state="active"] .sv { color: hsl(272 90% 80%) }
+.stage[data-state="active"] { background: hsl(252 92% 68% / .14); box-shadow: inset 0 0 0 1px hsl(252 92% 68% / .6) }
+.stage[data-state="active"] .sv { color: hsl(252 95% 80%) }
 .stage[data-state="ok"] .sv { color: var(--ok) } .stage[data-state="warn"] .sv { color: var(--warn) } .stage[data-state="fail"] .sv { color: var(--fail) }
 .stage[data-state="fail"] { box-shadow: inset 0 0 0 1px hsl(348 100% 74% / .5) }
 
@@ -41,9 +41,9 @@
 .lens-note { margin: 0; font-size: 11.5px; line-height: 1.6; color: var(--dim); min-height: 3.2em }
 #net { width: 100%; height: auto; overflow: visible; flex: 1; min-height: 0; margin: auto 0 }
 .edge { stroke: rgba(255, 255, 255, .14); stroke-width: 1.4; stroke-dasharray: 3 6; transition: stroke .3s }
-.edge.hot { stroke: hsl(272 90% 72%); stroke-dasharray: none; stroke-width: 2 }
+.edge.hot { stroke: hsl(252 95% 72%); stroke-dasharray: none; stroke-width: 2 }
 .node .box { fill: #0a0710; stroke: rgba(255, 255, 255, .16); stroke-width: 1.2; transition: stroke .4s, fill .4s }
-.node .inner { fill: none; stroke: hsl(272 85% 62% / .35); stroke-width: 1 }
+.node .inner { fill: none; stroke: hsl(252 92% 68% / .35); stroke-width: 1 }
 .node .nl { fill: #fff; font: 500 23px var(--sans); letter-spacing: -.015em }
 .node .ns { fill: rgba(255, 255, 255, .55); font: 14.5px var(--mono) }
 .node .dot { fill: rgba(255, 255, 255, .2); transition: fill .4s }
@@ -51,10 +51,10 @@
 .node[data-state="fail"] .box { stroke: var(--fail) }
 .node { transition: opacity .4s }
 .node.dim { opacity: .28 }
-@keyframes nodePing { 0% { stroke: hsl(272 90% 75%); stroke-width: 3 } 100% { stroke: rgba(255, 255, 255, .16); stroke-width: 1.2 } }
+@keyframes nodePing { 0% { stroke: hsl(252 95% 75%); stroke-width: 3 } 100% { stroke: rgba(255, 255, 255, .16); stroke-width: 1.2 } }
 .node.ping .box { animation: nodePing .9s ease-out }
 .n-you .box { fill: #120a1c } .n-enclave .box { fill: #0d0716 }
-.pk { fill: #fff } .pk.ok { fill: var(--ok) } .pk.data { fill: hsl(272 92% 76%) } .pk.fail { fill: var(--fail) } .pk.warn { fill: var(--warn) }
+.pk { fill: #fff } .pk.ok { fill: var(--ok) } .pk.data { fill: hsl(252 95% 76%) } .pk.fail { fill: var(--fail) } .pk.warn { fill: var(--warn) }
 
 /* log */
 .log { border-radius: 26px; display: flex; flex-direction: column; min-height: 520px; max-height: 720px; overflow: hidden }
@@ -65,20 +65,20 @@
 .log-empty { margin: auto; padding: 30px; max-width: 26rem; text-align: center; color: var(--dim); font-size: 14px; line-height: 1.6 }
 @keyframes rowIn { from { opacity: 0; transform: translateY(6px) } }
 .row { animation: rowIn .35s var(--ease) both; border-radius: 10px }
-.row.flash { animation: none; background: hsl(272 85% 62% / .2); transition: background 1.4s }
+.row.flash { animation: none; background: hsl(252 92% 68% / .2); transition: background 1.4s }
 .row-btn { width: 100%; display: grid; grid-template-columns: 4.6em 8.6em 1.2em minmax(0, 1fr) 1em; gap: 8px; align-items: baseline; padding: 6px 10px; border: 0; background: none; color: var(--mist); text-align: left; cursor: pointer; border-radius: 10px; font: inherit; line-height: 1.5 }
 .row-btn:disabled { cursor: default }
 .row-btn:not(:disabled):hover { background: rgba(255, 255, 255, .05) }
 .rt { color: var(--faint) }
 .ra { color: var(--dim); white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
-.a-you { color: #fff } .a-relay { color: var(--warn) } .a-enclave, .a-gateway { color: hsl(272 90% 80%) } .a-near { color: var(--ok) } .a-intel, .a-nvidia { color: #9cc7ff }
+.a-you { color: #fff } .a-relay { color: var(--warn) } .a-enclave, .a-gateway { color: hsl(252 95% 80%) } .a-near { color: var(--ok) } .a-intel, .a-nvidia { color: #9cc7ff }
 .ri { text-align: center }
-.row.ok .ri { color: var(--ok) } .row.fail .ri, .row.fail .rx { color: var(--fail) } .row.warn .ri { color: var(--warn) } .row.step .ri, .row.data .ri { color: hsl(272 90% 78%) } .row.info .ri { color: var(--faint) }
+.row.ok .ri { color: var(--ok) } .row.fail .ri, .row.fail .rx { color: var(--fail) } .row.warn .ri { color: var(--warn) } .row.step .ri, .row.data .ri { color: hsl(252 95% 78%) } .row.info .ri { color: var(--faint) }
 .rm { color: var(--faint); transition: transform .3s }
 .row.open .rm { transform: rotate(45deg) }
 .row-more { padding: 4px 10px 12px calc(4.6em + 8.6em + 1.2em + 34px); color: var(--dim) }
 .row-more p { margin: 0 0 8px; font-family: var(--sans); font-size: 13px; line-height: 1.55 }
-.row-more pre { margin: 0 0 6px; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, .04); box-shadow: inset 0 0 0 1px var(--line); white-space: pre-wrap; word-break: break-all; color: hsl(272 92% 82%); font-size: 11.5px; max-height: 220px; overflow: auto }
+.row-more pre { margin: 0 0 6px; padding: 10px 12px; border-radius: 10px; background: rgba(255, 255, 255, .04); box-shadow: inset 0 0 0 1px var(--line); white-space: pre-wrap; word-break: break-all; color: hsl(252 95% 82%); font-size: 11.5px; max-height: 220px; overflow: auto }
 .row-more .vis { font-family: var(--mono); font-size: 10.5px; letter-spacing: .04em; color: var(--faint) }
 .row.hidden-from { opacity: .3 }
 .row.hidden-from .row-more pre { filter: blur(5px); user-select: none }
@@ -95,5 +95,5 @@
 .proof-line { margin: 0; color: var(--mist); line-height: 1.6 }
 .proof-btns { display: flex; flex-wrap: wrap; gap: 8px; margin-top: auto }
 .relay-saw { grid-column: 1 / -1 }
-.relay-saw pre { margin: 0; max-height: 300px; overflow: auto; font-size: 12px; line-height: 1.6; color: hsl(272 92% 82%); white-space: pre-wrap; word-break: break-all }
+.relay-saw pre { margin: 0; max-height: 300px; overflow: auto; font-size: 12px; line-height: 1.6; color: hsl(252 95% 82%); white-space: pre-wrap; word-break: break-all }
 @media (max-width: 900px) { .result { grid-template-columns: minmax(0, 1fr) } }

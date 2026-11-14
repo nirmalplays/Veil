@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#000000">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,300..800&family=Geist:wght@300..700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
 <body>
 <main id="main">
@@ -17,7 +17,7 @@
   <div class="fade-b" aria-hidden="true"></div>
   <div class="wrap docs-hero-in">
     <span class="eyebrow" data-decrypt>VEIL / DOCUMENTATION</span>
-    <h1 id="docs-h" class="display" data-split>Use it, run it,<br><em class="s">check it.</em></h1>
+    <h1 id="docs-h" class="display" data-split>Use it, run it,<br><span class="veiled">check it.</span></h1>
     <div class="aud" role="group" aria-label="Jump to the guide for">
       <a class="aud-card glass spot" href="#visitors"><span class="eyebrow">I'm chatting</span><b>Visitors</b><span>What the privacy panel and receipts mean.</span></a>
       <a class="aud-card glass spot" href="#owners"><span class="eyebrow">I run a site</span><b>Site owners</b><span>Rules on NEAR, a free relay, one script tag.</span></a>
@@ -60,6 +60,7 @@
     <h2>Chatting on a Veil site</h2>
     <p>Click the chat bubble. Before you can type, the widget fetches the site's rules from its relay and compares their fingerprint with the one on NEAR. If they don't match, or the site never registered them, the chat stays off and tells you why.</p>
     <p>When you send your first message, the widget asks the model's enclave for a fresh hardware attestation and verifies it in your browser. That takes a few seconds. Later messages reuse the verified key.</p>
+    <div id="docs-clip"></div>
     <h3 id="privacy-panel">"How is this private?"</h3>
     <p>The button under the chat opens what was checked, with a ✓ or ✗ per line:</p>
     <div class="table" role="region" aria-label="Privacy panel lines" tabindex="0"><table>

@@ -1,11 +1,12 @@
-/* Veil site. Tokens follow the reference brief: black ground, the purple "veil" glow, Geist with an Instrument Serif accent, Geist Mono for
-   anything a machine produced (labels, hashes, logs). Two state colours exist only because logs need them: mint = verified, rose = failed. */
+/* Veil site. Ink ground with an iris-violet glow. Bricolage Grotesque sets the headlines, Geist the reading text, and IBM Plex Mono anything
+   a machine produced: labels, hashes, ciphertext and logs. Accent words are "veiled": they sit as ciphertext and decrypt when read.
+   Two state colours exist only because logs need them: mint = verified, rose = failed. */
 :root {
-  --ink: #000;
-  --veil: hsl(272 85% 62%);
-  --veil-soft: hsl(272 85% 62% / .16);
-  --deep: hsl(275 80% 22%);
-  --mist: #D7E2EA;
+  --ink: #050409;
+  --veil: hsl(252 92% 68%);
+  --veil-soft: hsl(252 92% 68% / .16);
+  --deep: hsl(250 60% 16%);
+  --mist: #DCE3F0;
   --text: #fff;
   --dim: rgba(255, 255, 255, .62);
   --faint: rgba(255, 255, 255, .4);
@@ -17,8 +18,8 @@
   --gutter: clamp(16px, 3vw, 44px);
   --max: 1480px;
   --sans: 'Geist', system-ui, sans-serif;
-  --mono: 'Geist Mono', ui-monospace, monospace;
-  --serif: 'Instrument Serif', Georgia, serif;
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --display: 'Bricolage Grotesque', 'Geist', system-ui, sans-serif;
   --ease: cubic-bezier(.16, 1, .3, 1);
   color-scheme: dark;
 }
@@ -28,7 +29,7 @@ html, body { margin: 0; background: var(--ink); color: var(--text) }
 body { font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; line-height: 1.5 }
 a { color: inherit; text-decoration: none }
 ::selection { background: var(--veil); color: #fff }
-:focus-visible { outline: 2px solid hsl(272 70% 66%); outline-offset: 3px; border-radius: 6px }
+:focus-visible { outline: 2px solid hsl(252 90% 74%); outline-offset: 3px; border-radius: 6px }
 button, input, select, textarea { font: inherit; color: inherit }
 img, svg { display: block }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
@@ -37,53 +38,58 @@ img, svg { display: block }
 
 .wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter) }
 .eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255, 255, 255, .7) }
-.display { margin: 0; font-weight: 500; letter-spacing: -0.05em; line-height: .92; font-size: clamp(3rem, 8vw, 7.5rem) }
-.h2 { margin: 0; font-weight: 500; letter-spacing: -0.035em; line-height: 1.02; font-size: clamp(2rem, 4.4vw, 4rem); text-wrap: balance }
-.h3 { margin: 0; font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.25rem, 1.8vw, 1.6rem) }
-em.s, .s { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em }
-/* Instrument Serif sets smaller than Geist at the same size; in headlines, match the visual weight */
-.display em.s, .h2 em.s, .manifesto-p em.s, .doc h2 em.s { font-size: 1.14em; line-height: .8 }
+.display { margin: 0; font-family: var(--display); font-weight: 600; font-variation-settings: "wdth" 90, "opsz" 96; letter-spacing: -0.028em; line-height: .92; font-size: clamp(3rem, 8vw, 7.4rem) }
+.h2 { margin: 0; font-family: var(--display); font-weight: 600; font-variation-settings: "wdth" 92, "opsz" 72; letter-spacing: -0.022em; line-height: 1.02; font-size: clamp(2.1rem, 4.6vw, 4.2rem); text-wrap: balance }
+.h3 { margin: 0; font-family: var(--display); font-weight: 600; letter-spacing: -0.02em; font-size: clamp(1.25rem, 1.8vw, 1.6rem) }
+/* a veiled word: ciphertext under a hatch until it is read (fx.ts decrypts it on sight and re-veils it on hover) */
+.veiled { position: relative; display: inline-block; color: hsl(252 100% 80%); white-space: nowrap }
+.veiled::after { content: ""; position: absolute; left: -.04em; right: -.04em; bottom: .02em; height: .1em; background: hsl(252 92% 68%); transform-origin: left; transition: transform .8s var(--ease) }
+.veiled.cipher { font-family: var(--mono); font-weight: 400; letter-spacing: -0.02em; color: hsl(252 60% 62%); font-size: .82em }
+.veiled.cipher::after { transform: scaleX(0) }
+.manifesto-p .veiled, .doc h2 .veiled { color: hsl(252 100% 80%) }
 .lede { margin: 0; max-width: 40rem; font-size: clamp(1.05rem, 1.35vw, 1.25rem); line-height: 1.6; color: var(--mist) }
 .muted { color: var(--dim) }
 .mono { font-family: var(--mono) }
 
-/* the veil: slow purple light behind heroes */
-@keyframes veilA { 0%, 100% { transform: translate(-10%, -5%) scale(1) } 50% { transform: translate(10%, 8%) scale(1.25) } }
-@keyframes veilB { 0%, 100% { transform: translate(8%, 6%) scale(1.1) } 50% { transform: translate(-12%, -8%) scale(.9) } }
+/* ambient light behind inner-page heroes (the home hero draws its own cipher field instead) */
+@keyframes driftA { 0%, 100% { transform: translate(-6%, -4%) rotate(0deg) scale(1) } 50% { transform: translate(8%, 6%) rotate(8deg) scale(1.18) } }
+@keyframes driftB { 0%, 100% { transform: translate(6%, 4%) scale(1.05) } 50% { transform: translate(-10%, -6%) scale(.92) } }
 .veil { position: absolute; inset: 0; opacity: .6; filter: blur(60px); pointer-events: none }
 .veil i { position: absolute; border-radius: 50% }
-.veil i:nth-child(1) { left: 10%; top: 0; width: 70vw; height: 70vh; background: radial-gradient(closest-side, hsl(272 85% 62% / .9), transparent); animation: veilA 22s ease-in-out infinite }
-.veil i:nth-child(2) { right: 0; top: 20%; width: 60vw; height: 60vh; background: radial-gradient(closest-side, var(--deep), transparent); animation: veilB 26s ease-in-out infinite }
-.veil i:nth-child(3) { left: 30%; top: 30%; width: 40vw; height: 40vh; background: radial-gradient(closest-side, rgba(255, 255, 255, .3), transparent); animation: veilB 18s ease-in-out -6s infinite }
+.veil i:nth-child(1) { left: 10%; top: 0; width: 70vw; height: 70vh; background: radial-gradient(closest-side, hsl(252 92% 68% / .9), transparent); animation: driftA 22s ease-in-out infinite }
+.veil i:nth-child(2) { right: 0; top: 20%; width: 60vw; height: 60vh; background: radial-gradient(closest-side, var(--deep), transparent); animation: driftB 26s ease-in-out infinite }
+.veil i:nth-child(3) { left: 30%; top: 30%; width: 40vw; height: 40vh; background: radial-gradient(closest-side, rgba(255, 255, 255, .3), transparent); animation: driftB 18s ease-in-out -6s infinite }
 .fade-b { position: absolute; inset: 0; background: linear-gradient(transparent 40%, #000); pointer-events: none }
 
 /* surfaces */
 .glass { background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: inset 0 1px 1px rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .1) }
 .panel { border-radius: 22px; padding: clamp(18px, 2vw, 26px) }
 .spot { position: relative; overflow: hidden }
-.spot::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), hsl(272 85% 62% / .16), transparent 60%) }
+.spot::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), hsl(252 92% 68% / .16), transparent 60%) }
 .spot:hover::before { opacity: 1 }
 
 /* buttons */
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 48px; padding: 0 24px; border-radius: 999px; border: 0; cursor: pointer; background: #fff; color: #000; font-weight: 500; font-size: 15px; white-space: nowrap; transition: transform .3s var(--ease), box-shadow .3s }
-.btn:hover { box-shadow: 0 0 40px -6px hsl(272 85% 62% / .7) }
+.btn:hover { box-shadow: 0 0 40px -6px hsl(252 92% 68% / .7) }
 .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none }
 .btn.ghost { background: var(--glass); color: #fff; box-shadow: inset 0 1px 1px rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .16) }
 .btn.ghost:hover { background: rgba(255, 255, 255, .1) }
 .btn.sm { height: 36px; padding: 0 14px; font-size: 13px }
-@keyframes spin { to { transform: rotate(360deg) } }
-.star { position: relative; display: inline-flex; border-radius: 999px; padding: 1px; overflow: hidden; isolation: isolate }
-.star::before { content: ""; position: absolute; left: 50%; top: 50%; width: 300px; height: 300px; margin: -150px 0 0 -150px; z-index: -1; background: conic-gradient(from 0deg, transparent 0 62%, var(--veil) 80%, #fff 86%, transparent 94%); animation: spin 5s linear infinite }
-.star > span { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 20px; border-radius: 999px; background: #000; color: #fff; font-size: 14px; font-weight: 500; white-space: nowrap }
-.star:hover { box-shadow: 0 0 40px -8px hsl(272 85% 62% / .6) }
+@keyframes scan { 0% { transform: translateX(-120%) } 60%, 100% { transform: translateX(320%) } }
+@keyframes blink { 50% { opacity: .15 } }
+.star { position: relative; display: inline-flex; border-radius: 999px; overflow: hidden; isolation: isolate; background: hsl(252 92% 64%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 10px 30px -12px hsl(252 92% 60% / .9) }
+.star::before { content: ""; position: absolute; top: 0; bottom: 0; width: 34%; z-index: -1; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .45), transparent); animation: scan 3.6s ease-in-out infinite }
+.star > span { display: inline-flex; align-items: center; gap: 9px; height: 42px; padding: 0 20px; color: #fff; font-size: 14px; font-weight: 600; white-space: nowrap }
+.star > span::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px var(--ok); animation: blink 1.4s steps(2) infinite }
+.star:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 0 44px -6px hsl(252 92% 64% / .9) }
 .chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .22); font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); background: transparent; cursor: pointer }
 .chip[aria-pressed="true"], .chip.on { background: #fff; color: #000; border-color: #fff }
 
 /* nav */
 .nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding: 16px var(--gutter) 0; pointer-events: none }
 .nav-in { pointer-events: auto; position: relative; max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; padding: 0 10px 0 22px; border-radius: 999px; background: rgba(12, 12, 12, .55); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); box-shadow: inset 0 1px 1px rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .08), 0 24px 60px -24px rgba(0, 0, 0, .9) }
-.brand { display: flex; align-items: center; gap: 12px; font-weight: 600; letter-spacing: .18em; font-size: 14px }
-.brand svg { filter: drop-shadow(0 0 8px rgba(255, 255, 255, .4)) drop-shadow(0 0 22px hsl(272 85% 62% / .5)) }
+.brand { display: flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 700; letter-spacing: .16em; font-size: 15px }
+.brand svg { filter: drop-shadow(0 0 8px rgba(255, 255, 255, .4)) drop-shadow(0 0 22px hsl(252 92% 68% / .5)) }
 .nav-links { display: flex; gap: 2px; padding: 6px; border-radius: 999px; background: rgba(255, 255, 255, .08) }
 .nav-links a { padding: 7px 16px; border-radius: 999px; font-size: 14px; color: rgba(255, 255, 255, .72); transition: background .3s, color .3s }
 .nav-links a:hover { background: rgba(255, 255, 255, .1); color: #fff }
@@ -114,7 +120,7 @@ em.s, .s { font-family: var(--serif); font-style: italic; font-weight: 400; lett
 .code .bar { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px 8px 18px; border-bottom: 1px solid var(--line); font: 11px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--faint) }
 .copy { border: 0; background: rgba(255, 255, 255, .08); border-radius: 999px; padding: 5px 12px; font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #fff; cursor: pointer }
 .copy:hover { background: rgba(255, 255, 255, .16) }
-.tok-k { color: hsl(272 90% 78%) } .tok-s { color: var(--ok) } .tok-c { color: var(--faint) } .tok-a { color: var(--warn) }
+.tok-k { color: hsl(252 95% 78%) } .tok-s { color: var(--ok) } .tok-c { color: var(--faint) } .tok-a { color: var(--warn) }
 
 /* state words */
 .ok { color: var(--ok) } .warn { color: var(--warn) } .fail { color: var(--fail) }
@@ -122,7 +128,7 @@ em.s, .s { font-family: var(--serif); font-style: italic; font-weight: 400; lett
 /* footer */
 .foot { position: relative; padding: clamp(80px, 10vw, 140px) 0 40px; overflow: hidden }
 .foot::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .25), transparent) }
-.foot::after { content: ""; position: absolute; left: 50%; top: -240px; width: 900px; max-width: 100%; height: 480px; transform: translateX(-50%); background: radial-gradient(50% 50% at 50% 50%, hsl(272 85% 62% / .12), transparent 70%); pointer-events: none }
+.foot::after { content: ""; position: absolute; left: 50%; top: -240px; width: 900px; max-width: 100%; height: 480px; transform: translateX(-50%); background: radial-gradient(50% 50% at 50% 50%, hsl(252 92% 68% / .12), transparent 70%); pointer-events: none }
 .foot-grid { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 56px 64px }
 .foot-col { display: flex; flex-direction: column; gap: 12px }
 .foot-col a { color: rgba(255, 255, 255, .8) } .foot-col a:hover { color: #fff }
@@ -133,6 +139,30 @@ em.s, .s { font-family: var(--serif); font-style: italic; font-weight: 400; lett
 [data-split] .ln { display: block; overflow: hidden; padding-bottom: .06em; margin-bottom: -.06em }
 [data-split] .ln > span { display: inline-block }
 
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; scroll-behavior: auto !important }
-}
+html[data-motion="reduce"] *, html[data-motion="reduce"] *::before, html[data-motion="reduce"] *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; scroll-behavior: auto !important }
+html[data-motion="reduce"] { scroll-behavior: auto }
+.motion-btn { border: 0; background: none; padding: 0; font: inherit; letter-spacing: inherit; color: var(--faint); cursor: pointer; text-decoration: underline; text-underline-offset: 3px }
+.motion-btn:hover { color: #fff }
+
+/* headline-like text everywhere uses the display face (prefixed with body to win over page stylesheets loaded later) */
+body .manifesto-p, body .path-btn .t, body .rely-list b, body .sheet nav a, body .aud-card b, body .way b, body .doc h2, body .wordmark, body .final h2 { font-family: var(--display); font-weight: 600; font-variation-settings: "wdth" 92, "opsz" 72; letter-spacing: -0.02em }
+
+/* video clips */
+.clip { margin: 0; display: flex; flex-direction: column; gap: 12px }
+.clip-open { position: relative; display: block; width: 100%; padding: 0; border: 0; cursor: pointer; border-radius: 20px; overflow: hidden; background: #0b0912; box-shadow: inset 0 0 0 1px var(--line), 0 30px 80px -40px hsl(252 92% 50% / .6); aspect-ratio: 16 / 10 }
+.clip-open video { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block; transition: transform .8s var(--ease) }
+.clip-open:hover video { transform: scale(1.025) }
+.clip-rec { position: absolute; left: 14px; top: 12px; display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; border-radius: 999px; background: rgba(5, 4, 9, .7); font-size: 10.5px; letter-spacing: .18em; color: #fff }
+.clip-rec i { width: 7px; height: 7px; border-radius: 50%; background: var(--fail); box-shadow: 0 0 8px var(--fail); animation: blink 1.4s steps(2) infinite }
+.clip-play { position: absolute; right: 14px; bottom: 14px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: #000; transform: scale(.9); opacity: .85; transition: transform .3s var(--ease), opacity .3s }
+.clip-open:hover .clip-play, .clip-open:focus-visible .clip-play { transform: scale(1); opacity: 1 }
+.clip figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: baseline }
+.clip-t { font-family: var(--display); font-weight: 600; font-size: 1.15rem; letter-spacing: -0.01em }
+.clip-m { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint) }
+.clip.inline { margin: 22px 0 30px }
+.clip-dlg { width: min(1280px, 94vw); max-height: 92vh; padding: 0; border: 0; border-radius: 22px; background: #0b0912; color: #fff; box-shadow: 0 0 0 1px var(--line), 0 40px 120px rgba(0, 0, 0, .8) }
+.clip-dlg::backdrop { background: rgba(5, 4, 9, .82); backdrop-filter: blur(6px) }
+.clip-dlg-in { display: flex; flex-direction: column; gap: 10px; padding: 14px }
+.clip-dlg-head { display: flex; justify-content: space-between; align-items: center; padding: 0 4px }
+.clip-dlg video { width: 100%; max-height: 74vh; border-radius: 14px; background: #000 }
+.clip-dlg-note { margin: 0 4px 2px; font-size: 11px; color: var(--faint); letter-spacing: .04em }

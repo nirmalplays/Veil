@@ -1,5 +1,6 @@
 // Shared page chrome: the nav (desktop pill, mobile sheet), the footer, and copy buttons on code blocks.
 import "./style.css";
+import { reduced, setMotion } from "./fx";
 
 export const RELAY = "https://veil-relay-oitl.onrender.com";
 export const REPO = "https://github.com/nirmalplays/Veil";
@@ -38,7 +39,7 @@ export function chrome(active: "home" | "live" | "docs") {
   document.body.insertAdjacentHTML("beforeend", `
 <footer class="foot"><div class="wrap">
   <div class="foot-grid">
-    <p class="h2" style="max-width:640px">AI you can <em class="s">check,</em> not just trust.</p>
+    <p class="h2" style="max-width:640px">AI you can <span class="veiled">check,</span> not just trust.</p>
     <div style="display:flex;flex-wrap:wrap;gap:48px 72px">
       <nav class="foot-col" aria-label="Footer"><span class="eyebrow">Navigate</span>${PAGES.map((p) => `<a href="${p.href}">${p.label}</a>`).join("")}</nav>
       <div class="foot-col"><span class="eyebrow">Build</span><a href="${REPO}" rel="noopener">Source on GitHub</a><a href="./docs.html#embed">Embed the widget</a><a href="./docs.html#relay">Host a relay</a></div>
@@ -46,8 +47,9 @@ export function chrome(active: "home" | "live" | "docs") {
     </div>
   </div>
   <div class="wordmark" aria-hidden="true">VEIL</div>
-  <div class="legal"><span>MIT licensed · NEAR testnet · not legal advice</span><span>Messages are encrypted in your browser. This site keeps nothing.</span></div>
+  <div class="legal"><span>MIT licensed · NEAR testnet · not legal advice · <button class="motion-btn" type="button" id="motion-btn" aria-pressed="${reduced}">${reduced ? "Turn motion back on" : "Reduce motion"}</button></span><span>Messages are encrypted in your browser. This site keeps nothing.</span></div>
 </div></footer>`);
+  document.getElementById("motion-btn")!.addEventListener("click", () => setMotion(!reduced));
   addCopyButtons();
 }
 

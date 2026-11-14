@@ -1,5 +1,7 @@
-import { addCopyButtons, chrome, codeBlock, esc, mark, RELAY } from "./chrome";
+import { addCopyButtons, chrome, codeBlock, esc, RELAY } from "./chrome";
 import { initFx, decrypt } from "./fx";
+import { cipherField } from "./field";
+import { clipHtml, initClips } from "./media";
 import { STAGES, type FlowEvent, type StageId } from "./flow-meta";
 import { e2eeEncryptKeep } from "../../client/src/e2ee.js";
 import { describeRule, policyHash, type Policy } from "../../client/src/policy.js";
@@ -139,5 +141,7 @@ $("embed-code").innerHTML = codeBlock("index.html", `<script defer src="https://
   data-accent="#6b2bb8"></script>`);
 addCopyButtons();
 
-$("final-mark").innerHTML = mark(112);
+cipherField($<HTMLCanvasElement>("field"), $("hero"));
+$("reel-grid").innerHTML = clipHtml("run", "big") + clipHtml("chat") + clipHtml("type");
+initClips();
 const fx = initFx();

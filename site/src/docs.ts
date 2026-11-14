@@ -1,10 +1,13 @@
 import { addCopyButtons, chrome, codeBlock, esc, RELAY } from "./chrome";
 import { initFx } from "./fx";
+import { clipHtml, initClips } from "./media";
 import { checkRules, type Rule } from "../../client/src/policy.js";
 import "./docs.css";
 
 chrome("docs");
+document.getElementById("docs-clip")!.innerHTML = clipHtml("chat", "inline");
 initFx();
+initClips();
 const $ = <T extends HTMLElement = HTMLElement>(id: string) => document.getElementById(id) as T;
 
 // ---------- table of contents, scroll tracking, search ----------
