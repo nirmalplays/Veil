@@ -7,7 +7,7 @@
     "setup": "npm --prefix client install && npm --prefix web install && npm --prefix widget install",
     "demo": "node scripts/demo.mjs",
     "test": "npm --prefix client test && npm --prefix client run typecheck && npm --prefix web run typecheck && npm --prefix widget run typecheck",
-    "test:contract": "cargo test --manifest-path contract/Cargo.toml",
+    "test:contract": "cd contract && cargo test",
     "verify": "npm --prefix client run verify --",
     "widget:relay": "npm --prefix widget run relay --",
     "widget:demo": "npm --prefix widget run dev",

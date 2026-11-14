@@ -4,11 +4,12 @@ import { createServer } from "node:http";
 import { mkdirSync, readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { dirname } from "node:path";
 import { randomUUID } from "node:crypto";
+import { fileURLToPath } from "node:url";
 import { ed25519 } from "@noble/curves/ed25519.js";
 import { handle, makeChain, NRAS_URL, type Deps } from "../supabase/functions/_shared/gate.ts";
 
 const PORT = Number(process.env.PORT ?? 8788), BASE = `http://localhost:${PORT}`;
-const DIR = new URL("./.gate-store/", import.meta.url).pathname;
+const DIR = fileURLToPath(new URL("./.gate-store/", import.meta.url));
 const file = (b: string, p: string) => `${DIR}${b}/${p}`;
 const contract = process.env.VEIL_CONTRACT ?? "veil-31da02.testnet";
 const rpcs = (process.env.NEAR_RPCS ?? "https://test.rpc.fastnear.com,https://rpc.testnet.near.org").split(",");

@@ -4,8 +4,9 @@
 import { createServer } from "node:http";
 import { mkdirSync, readFileSync, writeFileSync, existsSync, unlinkSync } from "node:fs";
 import { randomBytes } from "node:crypto";
+import { fileURLToPath } from "node:url";
 
-const DIR = new URL("./.blobs/", import.meta.url).pathname;
+const DIR = fileURLToPath(new URL("./.blobs/", import.meta.url));
 mkdirSync(DIR, { recursive: true });
 const PORT = Number(process.env.PORT ?? 8787);
 const cors = { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Methods": "GET,PUT,POST,DELETE,OPTIONS", "Access-Control-Allow-Headers": "*" };
