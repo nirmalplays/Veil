@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Veil — AI you can check</title>
+<meta name="description" content="Veil encrypts your messages in your browser to a hardware-attested AI enclave, fingerprints a business's AI rules on NEAR, and signs every answer. Watch it happen, live.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+</head>
+<body>
+<main id="main">
+
+<section class="hero" aria-labelledby="hero-h">
+  <div class="veil" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="fade-b" aria-hidden="true"></div>
+  <div class="wrap hero-grid">
+    <div class="hero-copy">
+      <span class="eyebrow" data-decrypt>VEIL / PRIVATE AI ON NEAR</span>
+      <h1 id="hero-h" class="display" data-split>AI you can <em class="s">check,</em><br>not just trust.</h1>
+      <p class="lede" data-in=".25">Your message is encrypted in your browser to an AI running in sealed, hardware-verified chips. The site, its server and the network carry it, but none of them can read it.</p>
+      <div class="hero-cta" data-in=".35">
+        <a class="btn" href="./live.html" data-magnet>Watch a message go through</a>
+        <a class="btn ghost" href="./docs.html">Read the docs</a>
+      </div>
+    </div>
+
+    <div class="cipher glass" data-in=".2" aria-labelledby="cipher-h">
+      <h2 id="cipher-h" class="sr-only">Try the encryption</h2>
+      <label class="eyebrow" for="plain">You type</label>
+      <input id="plain" class="cipher-in" type="text" autocomplete="off" spellcheck="false" maxlength="220" value="My landlord kept my deposit. Can I get it back?">
+      <div class="cipher-split" aria-hidden="true"><span></span><b>encrypted in this tab</b><span></span></div>
+      <span class="eyebrow">The site, its relay and the network get</span>
+      <p id="cipher-out" class="cipher-out mono" aria-live="off"></p>
+      <p id="cipher-meta" class="cipher-meta mono"></p>
+    </div>
+  </div>
+</section>
+
+<section class="sec manifesto" aria-label="Why Veil">
+  <div class="wrap">
+    <p class="manifesto-p" data-words>Every AI company says it protects your data. Veil lets you <em class="s">check</em> it: the hardware your words run on, the rules the AI was given, and every answer it signs.</p>
+  </div>
+</section>
+
+<section class="sec rule" aria-labelledby="path-h" id="path">
+  <div class="wrap path-grid">
+    <div class="path-head">
+      <span class="eyebrow">The path of one message</span>
+      <h2 id="path-h" class="h2" data-split>Ten steps.<br><em class="s">All of them checked.</em></h2>
+      <p class="lede">These are the real steps from a recorded run against the live relay, with the real values. Open any step to see its log.</p>
+      <p class="mono path-when" id="path-when"></p>
+      <a class="btn ghost" href="./live.html">Run it yourself</a>
+    </div>
+    <ol class="path-list" id="path-list" aria-label="Steps"></ol>
+  </div>
+</section>
+
+<section class="sec rule" aria-labelledby="who-h" id="who">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">Who sees what</span>
+      <h2 id="who-h" class="h2" data-split>Pick a party.<br><em class="s">See what it gets.</em></h2>
+    </div>
+    <div class="who-tabs" role="tablist" aria-label="Parties" id="who-tabs"></div>
+    <div class="who-grid" id="who-grid" role="tabpanel" aria-live="polite"></div>
+    <p class="who-note muted" id="who-note"></p>
+  </div>
+</section>
+
+<section class="sec rule" aria-labelledby="try-h" id="try">
+  <div class="wrap try-grid">
+    <div class="sec-head" style="margin:0">
+      <span class="eyebrow">Try the real thing</span>
+      <h2 id="try-h" class="h2" data-split>Talk to a Veil-protected<br><em class="s">assistant.</em></h2>
+      <p class="lede">Harbor &amp; Finch is a fictional law firm. Its assistant runs on Veil with rules registered on NEAR. Open the chat, ask anything, then press "How is this private?" inside it.</p>
+      <div class="hero-cta"><button class="btn" type="button" id="open-chat" data-magnet>Open the chat</button><a class="btn ghost" href="./docs.html#visitors">What the checks mean</a></div>
+    </div>
+    <div class="rules glass panel spot" data-tilt="3">
+      <span class="eyebrow">Rules registered on NEAR</span>
+      <ul id="rules" class="rules-list"><li class="muted">Loading the rules from the relay…</li></ul>
+      <p class="mono rules-hash" id="rules-hash"></p>
+    </div>
+  </div>
+</section>
+
+<section class="sec rule" aria-labelledby="embed-h" id="embed">
+  <div class="wrap embed-grid">
+    <div class="sec-head" style="margin:0">
+      <span class="eyebrow">For site owners</span>
+      <h2 id="embed-h" class="h2" data-split>One script tag.<br><em class="s">That's the install.</em></h2>
+      <p class="lede">Paste it into any page. The widget checks your registered rules before anyone can type, and switches itself off if they don't match.</p>
+      <a class="btn ghost" href="./docs.html#owners">Set up your own site</a>
+    </div>
+    <div class="embed-code" id="embed-code"></div>
+  </div>
+</section>
+
+<section class="sec rule" aria-labelledby="rely-h" id="rely">
+  <div class="wrap">
+    <div class="sec-head">
+      <span class="eyebrow">No magic</span>
+      <h2 id="rely-h" class="h2" data-split>What you still <em class="s">rely on.</em></h2>
+    </div>
+    <ul class="rely-list">
+      <li data-in="0"><b>Intel and NVIDIA hardware.</b><span>The enclave's privacy is only as good as the chips' confidential-computing features. Their attestation is what gets checked.</span></li>
+      <li data-in=".05"><b>NEAR AI Cloud's published images.</b><span>The attestation proves which software runs. Build provenance of those images is listed, but not verified here.</span></li>
+      <li data-in=".1"><b>The site's relay.</b><span>It holds the site's API key. This demo's relay runs on ordinary hosting, not in a TEE, and the widget says so. It still only ever carries ciphertext.</span></li>
+      <li data-in=".15"><b>NEAR testnet.</b><span>The policy registry is a testnet contract. It's for demos, not real funds.</span></li>
+    </ul>
+  </div>
+</section>
+
+<section class="final" aria-labelledby="final-h">
+  <div class="veil" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="wrap final-in">
+    <div class="final-mark" aria-hidden="true" id="final-mark"></div>
+    <h2 id="final-h" class="display" data-split>See it for <em class="s">yourself.</em></h2>
+    <p class="lede">Send a real message through the live relay and watch every request, proof and signature as it happens.</p>
+    <a class="star big" href="./live.html" data-magnet><span>Open the live view</span></a>
+  </div>
+</section>
+
+</main>
+<script type="module" src="/src/home.ts"></script>
+<script defer src="/veil-widget.js" data-relay="https://veil-relay-oitl.onrender.com/s/harbor-law-demo" data-accent="#6b2bb8"></script>
+</body>
+</html>

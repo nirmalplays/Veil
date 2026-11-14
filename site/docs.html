@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Docs — Veil</title>
+<meta name="description" content="How to use Veil: chat privately as a visitor, add Veil to your own site, host a relay for free, and verify attestations and receipts yourself.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+</head>
+<body>
+<main id="main">
+<section class="docs-hero" aria-labelledby="docs-h">
+  <div class="veil" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="fade-b" aria-hidden="true"></div>
+  <div class="wrap docs-hero-in">
+    <span class="eyebrow" data-decrypt>VEIL / DOCUMENTATION</span>
+    <h1 id="docs-h" class="display" data-split>Use it, run it,<br><em class="s">check it.</em></h1>
+    <div class="aud" role="group" aria-label="Jump to the guide for">
+      <a class="aud-card glass spot" href="#visitors"><span class="eyebrow">I'm chatting</span><b>Visitors</b><span>What the privacy panel and receipts mean.</span></a>
+      <a class="aud-card glass spot" href="#owners"><span class="eyebrow">I run a site</span><b>Site owners</b><span>Rules on NEAR, a free relay, one script tag.</span></a>
+      <a class="aud-card glass spot" href="#dev"><span class="eyebrow">I write code</span><b>Developers</b><span>Run it locally, verify from the command line.</span></a>
+    </div>
+  </div>
+</section>
+
+<div class="wrap docs-layout">
+  <aside class="side" aria-label="Documentation">
+    <label class="sr-only" for="find">Search the docs</label>
+    <input id="find" class="find" type="search" placeholder="Search the docs" autocomplete="off">
+    <nav id="toc" class="toc"></nav>
+  </aside>
+
+  <article class="doc" id="doc">
+
+  <section id="overview" data-group="Start">
+    <h2>What Veil is</h2>
+    <p>Veil puts a private AI assistant on any website, and lets anyone check three things instead of taking them on trust:</p>
+    <ul class="facts">
+      <li><b>The hardware.</b> Messages are encrypted in the visitor's browser to a key that lives inside an Intel TDX enclave with NVIDIA GPUs in confidential mode. The browser verifies the hardware's attestation before it encrypts anything.</li>
+      <li><b>The rules.</b> The site's master prompt and its checkable rules are fingerprinted (SHA-256) and registered on NEAR. If the rules a site serves don't match, the chat switches itself off.</li>
+      <li><b>Every answer.</b> The enclave signs hashes of the exact request and response bytes. An opt-in receipt lets anyone confirm an answer came from that enclave under those rules.</li>
+    </ul>
+    <p>There are four pieces: the <b>widget</b> (one script on the site), the site's <b>relay</b> (a small server that holds the NEAR AI API key and forwards ciphertext), the <b>contract</b> on NEAR testnet (<code>veil-31da02.testnet</code>), and <b>NEAR AI Cloud</b>, where the model runs in a TEE.</p>
+    <div class="callout"><b>Fastest way to understand it:</b> open the <a href="./live.html">live view</a> and press Replay. All ten steps play out with their real values.</div>
+  </section>
+
+  <section id="quickstart" data-group="Start">
+    <h2>Three ways in</h2>
+    <div class="ways">
+      <a class="way glass spot" href="./#try"><span class="eyebrow">2 minutes</span><b>Chat with the demo</b><span>Harbor &amp; Finch, a fictional law firm. Open the chat on the home page and press "How is this private?".</span></a>
+      <a class="way glass spot" href="./live.html"><span class="eyebrow">1 minute</span><b>Watch the pipeline</b><span>Send a real message and see every request, proof and signature in a log.</span></a>
+      <a class="way glass spot" href="#owners"><span class="eyebrow">About 30 minutes</span><b>Add it to your site</b><span>Write rules, register them on NEAR, host a free relay, paste one tag.</span></a>
+    </div>
+  </section>
+
+  <section id="visitors" data-group="Visitors">
+    <h2>Chatting on a Veil site</h2>
+    <p>Click the chat bubble. Before you can type, the widget fetches the site's rules from its relay and compares their fingerprint with the one on NEAR. If they don't match, or the site never registered them, the chat stays off and tells you why.</p>
+    <p>When you send your first message, the widget asks the model's enclave for a fresh hardware attestation and verifies it in your browser. That takes a few seconds. Later messages reuse the verified key.</p>
+    <h3 id="privacy-panel">"How is this private?"</h3>
+    <p>The button under the chat opens what was checked, with a ✓ or ✗ per line:</p>
+    <div class="table" role="region" aria-label="Privacy panel lines" tabindex="0"><table>
+      <thead><tr><th>Line</th><th>What it means</th></tr></thead>
+      <tbody>
+        <tr><td>Policy hash … matches</td><td>The rules served to you are the ones registered on NEAR, and when they were registered.</td></tr>
+        <tr><td>Every reply is checked against these rules</td><td>Rules a program can test: word limit, required or forbidden text, patterns. A reply that breaks one is hidden.</td></tr>
+        <tr><td>Enclave: Intel confirms…, NVIDIA confirms…</td><td>The hardware checks, listed one by one. See <a href="#checks">what each check proves</a>.</td></tr>
+        <tr><td>Knowledge base: fingerprint …</td><td>The documents the site's AI answers from rebuild the fingerprint registered on NEAR.</td></tr>
+        <tr><td>Relay: not checked / not in a TEE</td><td>Press "Check the relay". Ordinary hosting answers "not in a TEE": its operator could read the site's API key, but not your messages.</td></tr>
+      </tbody></table></div>
+    <h3 id="visitor-receipts">Receipts</h3>
+    <p>If the site allows them, tick <b>Allow receipts</b>. Answers you get while it's ticked get a <b>Get receipt</b> button. A receipt can be saved two ways:</p>
+    <ul class="facts">
+      <li><b>Save proof</b> proves the exchange happened, without revealing what was said.</li>
+      <li><b>Save with content</b> also includes the one-time keys, so whoever you give it to can decrypt your question and the answer and check them against the signed bytes.</li>
+    </ul>
+    <p>Receipts live in memory only. Unticking the box, or closing the tab, wipes them.</p>
+  </section>
+
+  <section id="owners" data-group="Site owners">
+    <h2>Add Veil to your site</h2>
+    <p>Four steps. The first two happen in the Veil app, which you run on your own machine.</p>
+    <ol class="steps">
+      <li><b>Write your workspace.</b> Name, greeting, the instructions for the AI, and the rules every reply must pass. The Workspaces tab has a tester for sample replies.</li>
+      <li><b>Publish to NEAR.</b> One click registers the fingerprint on the contract and makes your account the owner of the site id. Old versions stay on chain.</li>
+      <li><b>Host a relay</b> that serves your workspace and holds your NEAR AI key. <a href="#relay">Free on Render.</a></li>
+      <li><b>Paste the widget</b> into your pages. <a href="#embed">Build the tag below.</a></li>
+    </ol>
+<div class="code"><div class="bar"><span>Run the app locally (Node 22)</span><button class="copy" type="button">Copy</button></div><pre><code>git clone https://github.com/nirmalplays/Veil.git && cd Veil
+npm run setup      # installs client, web and widget
+npm run demo       # opens the app at http://localhost:5173/#/app</code></pre></div>
+    <p>In the app: <b>Create inline wallet</b> (a funded testnet account), <b>Sign in with NEP-413</b>, then open <b>Workspaces</b>. When you're done, <b>Download site.json</b>.</p>
+  </section>
+
+  <section id="relay" data-group="Site owners">
+    <h2>Host the relay (free)</h2>
+    <p>The relay is a small Node server in <code>widget/relay.ts</code>. It exists because a website can't hide an API key in browser code. It refuses any chat that isn't end-to-end encrypted, never rewrites a request (the enclave signs the exact bytes), and serves many sites at <code>/s/&lt;siteId&gt;/</code>.</p>
+<div class="code"><div class="bar"><span>Build and publish the image</span><button class="copy" type="button">Copy</button></div><pre><code># copy your site.json into widget/sites/, add a COPY line for it in widget/Dockerfile, then:
+docker build -f widget/Dockerfile -t &lt;you&gt;/veil-relay .
+docker push &lt;you&gt;/veil-relay</code></pre></div>
+    <ol class="steps">
+      <li>On <a href="https://render.com" rel="noopener">Render</a>: <b>New → Web Service → Existing image</b>, enter <code>docker.io/&lt;you&gt;/veil-relay</code>, instance type <b>Free</b>.</li>
+      <li>Add environment variables: <code>NEARAI_API_KEY</code> (from cloud.near.ai), plus random <code>SEAL_SECRET</code> and <code>AUDIT_TOKEN</code> if you use a sealed knowledge base.</li>
+      <li>Deploy. Check <code>https://&lt;service&gt;.onrender.com/s/&lt;siteId&gt;/config</code> returns your site.</li>
+    </ol>
+    <div class="callout warn"><b>Free hosting sleeps.</b> After 15 idle minutes the next visitor waits up to a minute while it wakes. And it isn't a TEE: the host could read your API key, never your visitors' messages. The widget tells visitors this honestly.</div>
+  </section>
+
+  <section id="embed" data-group="Site owners">
+    <h2>Embed the widget</h2>
+    <p>Fill these in and copy the tag. Host <code>veil-widget.js</code> (from <code>npm run widget:build</code>) next to your pages.</p>
+    <form class="gen glass" id="gen" autocomplete="off">
+      <label>Relay URL<input id="g-relay" value="https://veil-relay-oitl.onrender.com"></label>
+      <label>Site id<input id="g-site" value="harbor-law-demo" pattern="[a-z0-9\-]+"></label>
+      <label>Accent colour<span class="color-row"><input id="g-accent" type="color" value="#6b2bb8"><output id="g-accent-v" class="mono">#6b2bb8</output></span></label>
+      <label class="check"><input id="g-unreg" type="checkbox"> Allow an unregistered policy (testing only)</label>
+    </form>
+    <div id="gen-out"></div>
+    <p class="muted">The widget sets no cookies and stores nothing. Its <code>data-rpc</code> attribute takes a comma-separated list of NEAR RPC URLs if you want to choose them.</p>
+    <h3 id="origins">Lock it to your domain</h3>
+    <p>By default any website can embed your relay and spend your NEAR AI credit (a per-visitor limit of 20 requests a minute applies). Add your origins to <code>site.json</code>:</p>
+<div class="code"><div class="bar"><span>site.json</span><button class="copy" type="button">Copy</button></div><pre><code>"allowedOrigins": ["https://www.example.com"],
+"ratePerMinute": 20,
+"maxTokens": 3000</code></pre></div>
+  </section>
+
+  <section id="rules" data-group="Site owners">
+    <h2>Rules a program can check</h2>
+    <p>Rules are part of the fingerprint on NEAR, and the widget runs them on every reply. A reply that breaks one is hidden and replaced by your fallback text, but its receipt still proves what the model said. Tone and judgement can't be written as rules, so "never give legal advice" in the prompt is sent, not proven.</p>
+    <div class="tester glass" id="tester">
+      <div class="tester-head"><span class="eyebrow">Rule tester</span><span class="muted">Runs Veil's real rule checker in your browser.</span></div>
+      <div class="tester-rules" id="t-rules"></div>
+      <label class="sr-only" for="t-reply">Sample reply</label>
+      <textarea id="t-reply" rows="4">I'm an AI assistant, not a lawyer. A first consultation costs 50 dollars and lasts thirty minutes. We guarantee a reply within a day.</textarea>
+      <ol class="t-results mono" id="t-results" aria-live="polite"></ol>
+    </div>
+    <div class="table" role="region" aria-label="Rule types" tabindex="0"><table>
+      <thead><tr><th>Type</th><th>Fields</th><th>Passes when</th></tr></thead>
+      <tbody>
+        <tr><td><code>max_words</code></td><td><code>n</code></td><td>The reply has at most n words.</td></tr>
+        <tr><td><code>must_include</code></td><td><code>text</code></td><td>The text appears (case-insensitive).</td></tr>
+        <tr><td><code>must_not_include</code></td><td><code>text</code></td><td>The text never appears.</td></tr>
+        <tr><td><code>must_not_match</code></td><td><code>pattern</code>, <code>label</code></td><td>The regular expression never matches.</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section id="kb" data-group="Site owners">
+    <h2>Knowledge base</h2>
+    <p>A workspace can carry its own documents. They're split into passages and hashed into a Merkle tree whose root sits inside the registered policy, so changing one passage means a new registered version. Pick a mode in the Workspaces tab:</p>
+    <div class="table" role="region" aria-label="Knowledge base modes" tabindex="0"><table>
+      <thead><tr><th>Mode</th><th>Who can read the passages</th><th>Search</th></tr></thead>
+      <tbody>
+        <tr><td>Public, keyword</td><td>Anyone: the relay serves them and the browser checks the root.</td><td>BM25 in the browser.</td></tr>
+        <tr><td>Public, semantic</td><td>Anyone. Vectors are covered by the root too.</td><td>Questions embedded in an attested TEE, ranked in the browser.</td></tr>
+        <tr><td>Sealed</td><td>Only the enclave. The relay encrypts the whole base to the verified enclave key.</td><td>None: the model reads all of it.</td></tr>
+      </tbody></table></div>
+    <div class="callout warn"><b>Sealed means "not published", not "secret".</b> A visitor can still try to coax the model into repeating it; your rules limit how much one reply can say. The owner can prove what was sealed in a request with <code>POST /s/&lt;site&gt;/audit</code> and the <code>AUDIT_TOKEN</code>.</div>
+  </section>
+
+  <section id="dev" data-group="Developers">
+    <h2>Run and verify from the command line</h2>
+    <p>Put a NEAR AI key in <code>client/.env</code> (<code>NEARAI_API_KEY=…</code>; the file is git-ignored).</p>
+<div class="code"><div class="bar"><span>Terminal</span><button class="copy" type="button">Copy</button></div><pre><code>cd client && npm install
+npm run verify            # full attestation check, uses no credit
+npm run one-completion    # one encrypted completion, verified end to end
+npm run receipt -- out.json   # makes a receipt and verifies it</code></pre></div>
+    <p><code>npm run verify</code> prints PASS or FAIL per check and ends with <code>VERIFIED. Pin this model key: …</code>.</p>
+    <h3 id="tests">Tests</h3>
+<div class="code"><div class="bar"><span>Terminal</span><button class="copy" type="button">Copy</button></div><pre><code>npm test                  # client suite + type checks of client, web and widget
+npm run test:contract     # NEAR contract, needs Rust 1.95</code></pre></div>
+  </section>
+
+  <section id="receipts" data-group="Developers">
+    <h2>Verify a receipt</h2>
+    <p>A receipt holds the exact request and response bodies, the enclave's signature, the attestation report with its nonce, and the policy fingerprint. Verifying one checks:</p>
+    <ol class="steps">
+      <li>The signed text is <code>model:sha256(request):sha256(response)</code>, and both hashes match the bodies in the receipt.</li>
+      <li>The ed25519 signature is valid, and the signing key is the one the attestation binds to the enclave.</li>
+      <li>With content disclosed: the reply decrypts from the signed response, the prompt matches the signed request, and the policy matches the fingerprint registered on NEAR. Then every rule is re-run.</li>
+    </ol>
+    <p>Two verdicts come out separately: <b>authentic</b> (it really went through the enclave) and <b>obeyed the rules</b>. In the Veil app, open the <b>Receipts</b> tab and drop the file in; the live view's <b>Download the receipt</b> gives you one to try.</p>
+  </section>
+
+  <section id="api" data-group="Reference">
+    <h2>Relay HTTP API</h2>
+    <p>Every route also works under <code>/s/&lt;siteId&gt;/</code>. The GET routes below run against the live demo relay.</p>
+    <div class="api" id="api-list"></div>
+  </section>
+
+  <section id="sitejson" data-group="Reference">
+    <h2>site.json</h2>
+    <div class="table" role="region" aria-label="site.json fields" tabindex="0"><table>
+      <thead><tr><th>Field</th><th>Meaning</th></tr></thead>
+      <tbody>
+        <tr><td><code>siteId</code></td><td>Lowercase id. Also the key the policy is registered under on NEAR.</td></tr>
+        <tr><td><code>title</code>, <code>greeting</code></td><td>Shown in the widget.</td></tr>
+        <tr><td><code>policy.prompt</code></td><td>The master prompt, sent encrypted as the system message.</td></tr>
+        <tr><td><code>policy.rules</code></td><td>Checkable rules (see <a href="#rules">Rules</a>).</td></tr>
+        <tr><td><code>policy.kb</code></td><td>Knowledge-base fingerprint: Merkle <code>root</code>, <code>chunks</code>, optional <code>embed</code>, optional <code>mode: "sealed"</code>.</td></tr>
+        <tr><td><code>fallback</code></td><td>Shown instead of a reply that broke a rule.</td></tr>
+        <tr><td><code>model</code></td><td>A NEAR AI model that runs in a TEE, e.g. <code>z-ai/glm-5.3-flash</code>. The relay allows only this one.</td></tr>
+        <tr><td><code>contract</code></td><td>The registry contract, <code>veil-31da02.testnet</code>.</td></tr>
+        <tr><td><code>receipts</code></td><td><code>"visitor"</code> to offer receipts, <code>"off"</code> to hide them.</td></tr>
+        <tr><td><code>allowedOrigins</code>, <code>maxTokens</code>, <code>ratePerMinute</code></td><td>Who may embed it, the reply cap, and the per-visitor limit.</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section id="env" data-group="Reference">
+    <h2>Relay environment</h2>
+    <div class="table" role="region" aria-label="Environment variables" tabindex="0"><table>
+      <thead><tr><th>Variable</th><th>Required</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td><code>NEARAI_API_KEY</code></td><td>Yes</td><td>Your NEAR AI Cloud key. Stays on the relay.</td></tr>
+        <tr><td><code>PORT</code></td><td>No</td><td>Port to listen on (hosts set it; default 8790).</td></tr>
+        <tr><td><code>SEAL_SECRET</code></td><td>For sealed bases</td><td>Makes sealing reproducible, so audits survive restarts.</td></tr>
+        <tr><td><code>AUDIT_TOKEN</code></td><td>No</td><td>Turns on <code>POST /audit</code> for the owner.</td></tr>
+        <tr><td><code>NEARAI_BASE</code></td><td>No</td><td>Upstream API (default <code>https://cloud-api.near.ai</code>).</td></tr>
+        <tr><td><code>DSTACK_SOCKET</code>, <code>VEIL_SOURCE</code></td><td>No</td><td>Only inside a dstack TEE: the guest agent socket, and where the code comes from.</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section id="checks" data-group="Reference">
+    <h2>What each hardware check proves</h2>
+    <div class="table" role="region" aria-label="Attestation checks" tabindex="0"><table>
+      <thead><tr><th>Check</th><th>Proves</th></tr></thead>
+      <tbody>
+        <tr><td>Our fresh nonce is echoed</td><td>The proof was made just now, for this request. It isn't a replay.</td></tr>
+        <tr><td>Intel confirms the quote</td><td>The quote's certificate chain leads to Intel and the platform's security patches are current (TCB <code>UpToDate</code> or <code>SWHardeningNeeded</code>).</td></tr>
+        <tr><td>Not in debug mode</td><td>Nobody can inspect the enclave's memory with a debugger.</td></tr>
+        <tr><td>Quote binds the key and nonce</td><td>The encryption key you're about to use was generated inside this exact enclave.</td></tr>
+        <tr><td>Event log replays to RTMR3</td><td>The boot log is authentic, so the app and compose it names are what actually started.</td></tr>
+        <tr><td>Compose matches MRCONFIGID</td><td>The container configuration served with the report is the one the hardware measured.</td></tr>
+        <tr><td>NVIDIA confirms the GPUs</td><td>Every GPU is genuine, in confidential mode, with secure boot on and debug off. Each GPU's token is checked, not just the overall verdict.</td></tr>
+        <tr><td>Gateway checks</td><td>The same proofs for NEAR AI's gateway in front of the model.</td></tr>
+        <tr><td>Build provenance</td><td>Not verified. The image digests are listed so you can look them up on Sigstore.</td></tr>
+      </tbody></table></div>
+  </section>
+
+  <section id="trust" data-group="Reference">
+    <h2>Trust model</h2>
+    <ul class="facts">
+      <li><b>You check:</b> the enclave's hardware attestation, the registered policy fingerprint, knowledge-base fingerprints, and every receipt's signature.</li>
+      <li><b>You rely on:</b> Intel's and NVIDIA's hardware, NEAR AI Cloud's published enclave images, and the site owner's relay for the API key.</li>
+      <li><b>Not claimed:</b> no zero-knowledge proofs, no "zero data leakage". The relay sees metadata: time, IP address and message size. The contract is on testnet.</li>
+    </ul>
+  </section>
+
+  <section id="faq" data-group="Reference">
+    <h2>Troubleshooting</h2>
+    <details><summary>The chat says "Cannot reach the relay"</summary><p>The relay is down or asleep. Free hosting takes up to a minute to wake; reload after that. Check <code>/config</code> on the relay in a browser tab.</p></details>
+    <details><summary>"This site's policy does not match the one registered on NEAR"</summary><p>The relay serves a different site.json from the one you published. Publish the current version from the Workspaces tab, or redeploy the relay with the published file.</p></details>
+    <details><summary>"This site has not registered its policy"</summary><p>Publish it to NEAR from the Workspaces tab. For local testing only, add <code>data-allow-unregistered="true"</code>.</p></details>
+    <details><summary>403 "origin not allowed"</summary><p>The page's origin isn't in <code>allowedOrigins</code>. Add it exactly, scheme included, with no trailing slash.</p></details>
+    <details><summary>429 "slow down"</summary><p>The per-visitor limit was hit. Raise <code>ratePerMinute</code> if real visitors need more.</p></details>
+    <details><summary>"attestation verification failed"</summary><p>A hardware check failed, so nothing was sent. The privacy panel or the live view's log names which check. Try again; if it persists, the enclave may be mid-update.</p></details>
+  </section>
+  </article>
+</div>
+</main>
+<script type="module" src="/src/docs.ts"></script>
+</body>
+</html>

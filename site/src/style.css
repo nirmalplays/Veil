@@ -1,0 +1,138 @@
+/* Veil site. Tokens follow the reference brief: black ground, the purple "veil" glow, Geist with an Instrument Serif accent, Geist Mono for
+   anything a machine produced (labels, hashes, logs). Two state colours exist only because logs need them: mint = verified, rose = failed. */
+:root {
+  --ink: #000;
+  --veil: hsl(272 85% 62%);
+  --veil-soft: hsl(272 85% 62% / .16);
+  --deep: hsl(275 80% 22%);
+  --mist: #D7E2EA;
+  --text: #fff;
+  --dim: rgba(255, 255, 255, .62);
+  --faint: rgba(255, 255, 255, .4);
+  --line: rgba(255, 255, 255, .12);
+  --glass: rgba(255, 255, 255, .04);
+  --ok: #9FF0C9;
+  --warn: #F5C77E;
+  --fail: #FF7A93;
+  --gutter: clamp(16px, 3vw, 44px);
+  --max: 1480px;
+  --sans: 'Geist', system-ui, sans-serif;
+  --mono: 'Geist Mono', ui-monospace, monospace;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --ease: cubic-bezier(.16, 1, .3, 1);
+  color-scheme: dark;
+}
+* { box-sizing: border-box }
+html { scroll-behavior: smooth; scroll-padding-top: 110px }
+html, body { margin: 0; background: var(--ink); color: var(--text) }
+body { font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; line-height: 1.5 }
+a { color: inherit; text-decoration: none }
+::selection { background: var(--veil); color: #fff }
+:focus-visible { outline: 2px solid hsl(272 70% 66%); outline-offset: 3px; border-radius: 6px }
+button, input, select, textarea { font: inherit; color: inherit }
+img, svg { display: block }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
+.skip { position: fixed; left: 12px; top: -60px; z-index: 100; padding: 10px 16px; border-radius: 999px; background: #fff; color: #000; transition: top .2s }
+.skip:focus { top: 12px }
+
+.wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter) }
+.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255, 255, 255, .7) }
+.display { margin: 0; font-weight: 500; letter-spacing: -0.05em; line-height: .92; font-size: clamp(3rem, 8vw, 7.5rem) }
+.h2 { margin: 0; font-weight: 500; letter-spacing: -0.035em; line-height: 1.02; font-size: clamp(2rem, 4.4vw, 4rem); text-wrap: balance }
+.h3 { margin: 0; font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.25rem, 1.8vw, 1.6rem) }
+em.s, .s { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em }
+/* Instrument Serif sets smaller than Geist at the same size; in headlines, match the visual weight */
+.display em.s, .h2 em.s, .manifesto-p em.s, .doc h2 em.s { font-size: 1.14em; line-height: .8 }
+.lede { margin: 0; max-width: 40rem; font-size: clamp(1.05rem, 1.35vw, 1.25rem); line-height: 1.6; color: var(--mist) }
+.muted { color: var(--dim) }
+.mono { font-family: var(--mono) }
+
+/* the veil: slow purple light behind heroes */
+@keyframes veilA { 0%, 100% { transform: translate(-10%, -5%) scale(1) } 50% { transform: translate(10%, 8%) scale(1.25) } }
+@keyframes veilB { 0%, 100% { transform: translate(8%, 6%) scale(1.1) } 50% { transform: translate(-12%, -8%) scale(.9) } }
+.veil { position: absolute; inset: 0; opacity: .6; filter: blur(60px); pointer-events: none }
+.veil i { position: absolute; border-radius: 50% }
+.veil i:nth-child(1) { left: 10%; top: 0; width: 70vw; height: 70vh; background: radial-gradient(closest-side, hsl(272 85% 62% / .9), transparent); animation: veilA 22s ease-in-out infinite }
+.veil i:nth-child(2) { right: 0; top: 20%; width: 60vw; height: 60vh; background: radial-gradient(closest-side, var(--deep), transparent); animation: veilB 26s ease-in-out infinite }
+.veil i:nth-child(3) { left: 30%; top: 30%; width: 40vw; height: 40vh; background: radial-gradient(closest-side, rgba(255, 255, 255, .3), transparent); animation: veilB 18s ease-in-out -6s infinite }
+.fade-b { position: absolute; inset: 0; background: linear-gradient(transparent 40%, #000); pointer-events: none }
+
+/* surfaces */
+.glass { background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: inset 0 1px 1px rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .1) }
+.panel { border-radius: 22px; padding: clamp(18px, 2vw, 26px) }
+.spot { position: relative; overflow: hidden }
+.spot::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), hsl(272 85% 62% / .16), transparent 60%) }
+.spot:hover::before { opacity: 1 }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 48px; padding: 0 24px; border-radius: 999px; border: 0; cursor: pointer; background: #fff; color: #000; font-weight: 500; font-size: 15px; white-space: nowrap; transition: transform .3s var(--ease), box-shadow .3s }
+.btn:hover { box-shadow: 0 0 40px -6px hsl(272 85% 62% / .7) }
+.btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none }
+.btn.ghost { background: var(--glass); color: #fff; box-shadow: inset 0 1px 1px rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .16) }
+.btn.ghost:hover { background: rgba(255, 255, 255, .1) }
+.btn.sm { height: 36px; padding: 0 14px; font-size: 13px }
+@keyframes spin { to { transform: rotate(360deg) } }
+.star { position: relative; display: inline-flex; border-radius: 999px; padding: 1px; overflow: hidden; isolation: isolate }
+.star::before { content: ""; position: absolute; left: 50%; top: 50%; width: 300px; height: 300px; margin: -150px 0 0 -150px; z-index: -1; background: conic-gradient(from 0deg, transparent 0 62%, var(--veil) 80%, #fff 86%, transparent 94%); animation: spin 5s linear infinite }
+.star > span { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 20px; border-radius: 999px; background: #000; color: #fff; font-size: 14px; font-weight: 500; white-space: nowrap }
+.star:hover { box-shadow: 0 0 40px -8px hsl(272 85% 62% / .6) }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .22); font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); background: transparent; cursor: pointer }
+.chip[aria-pressed="true"], .chip.on { background: #fff; color: #000; border-color: #fff }
+
+/* nav */
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding: 16px var(--gutter) 0; pointer-events: none }
+.nav-in { pointer-events: auto; position: relative; max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; padding: 0 10px 0 22px; border-radius: 999px; background: rgba(12, 12, 12, .55); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); box-shadow: inset 0 1px 1px rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .08), 0 24px 60px -24px rgba(0, 0, 0, .9) }
+.brand { display: flex; align-items: center; gap: 12px; font-weight: 600; letter-spacing: .18em; font-size: 14px }
+.brand svg { filter: drop-shadow(0 0 8px rgba(255, 255, 255, .4)) drop-shadow(0 0 22px hsl(272 85% 62% / .5)) }
+.nav-links { display: flex; gap: 2px; padding: 6px; border-radius: 999px; background: rgba(255, 255, 255, .08) }
+.nav-links a { padding: 7px 16px; border-radius: 999px; font-size: 14px; color: rgba(255, 255, 255, .72); transition: background .3s, color .3s }
+.nav-links a:hover { background: rgba(255, 255, 255, .1); color: #fff }
+.nav-links a[aria-current="page"] { background: #fff; color: #000 }
+.nav-cta { display: flex; align-items: center; gap: 8px }
+.menu-btn { display: none; width: 46px; height: 46px; border-radius: 999px; border: 0; cursor: pointer; place-items: center; background: rgba(255, 255, 255, .08) }
+.sheet { position: fixed; inset: 0; z-index: 70; pointer-events: none }
+.sheet > div { position: absolute; inset: 0; transform: translateY(-100%); transition: transform .7s cubic-bezier(.77, 0, .18, 1) }
+.sheet > div:nth-child(1) { background: var(--deep) }
+.sheet > div:nth-child(2) { background: #0d0d0d; transition-delay: .07s }
+.sheet > div:nth-child(3) { background: #000; transition-delay: .14s; display: flex; flex-direction: column; padding: 20px 24px 32px }
+.sheet.open { pointer-events: auto }
+.sheet.open > div { transform: none }
+.sheet nav { margin-top: auto; display: flex; flex-direction: column; gap: 6px }
+.sheet nav a { font-size: clamp(2.6rem, 12vw, 4rem); font-weight: 500; letter-spacing: -0.04em; line-height: 1.05 }
+.sheet .top { display: flex; justify-content: space-between; align-items: center; height: 48px }
+.x-btn { width: 46px; height: 46px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .2); background: transparent; display: grid; place-items: center; cursor: pointer }
+@media (max-width: 860px) { .nav-links, .nav-cta .star { display: none } .menu-btn { display: grid } .nav-in { padding-left: 18px } }
+
+/* sections */
+.sec { padding: clamp(80px, 10vw, 150px) 0; position: relative }
+.sec-head { display: flex; flex-direction: column; align-items: flex-start; gap: 18px; margin-bottom: clamp(40px, 5vw, 72px) }
+.rule { border-top: 1px solid var(--line) }
+
+/* code */
+.code { position: relative; border-radius: 16px; background: rgba(255, 255, 255, .035); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden }
+.code pre { margin: 0; padding: 18px 20px; overflow-x: auto; font: 13px/1.7 var(--mono); color: var(--mist); white-space: pre }
+.code .bar { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px 8px 18px; border-bottom: 1px solid var(--line); font: 11px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--faint) }
+.copy { border: 0; background: rgba(255, 255, 255, .08); border-radius: 999px; padding: 5px 12px; font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #fff; cursor: pointer }
+.copy:hover { background: rgba(255, 255, 255, .16) }
+.tok-k { color: hsl(272 90% 78%) } .tok-s { color: var(--ok) } .tok-c { color: var(--faint) } .tok-a { color: var(--warn) }
+
+/* state words */
+.ok { color: var(--ok) } .warn { color: var(--warn) } .fail { color: var(--fail) }
+
+/* footer */
+.foot { position: relative; padding: clamp(80px, 10vw, 140px) 0 40px; overflow: hidden }
+.foot::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .25), transparent) }
+.foot::after { content: ""; position: absolute; left: 50%; top: -240px; width: 900px; max-width: 100%; height: 480px; transform: translateX(-50%); background: radial-gradient(50% 50% at 50% 50%, hsl(272 85% 62% / .12), transparent 70%); pointer-events: none }
+.foot-grid { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 56px 64px }
+.foot-col { display: flex; flex-direction: column; gap: 12px }
+.foot-col a { color: rgba(255, 255, 255, .8) } .foot-col a:hover { color: #fff }
+.wordmark { position: relative; margin-top: clamp(60px, 8vw, 110px); font-weight: 600; letter-spacing: -0.06em; line-height: .78; font-size: clamp(6rem, 27vw, 26rem); color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .16); user-select: none; text-align: center }
+.legal { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 28px; font: 12px var(--mono); letter-spacing: .08em; color: var(--faint) }
+
+/* reveal (fx.ts sets the start state only when motion is allowed) */
+[data-split] .ln { display: block; overflow: hidden; padding-bottom: .06em; margin-bottom: -.06em }
+[data-split] .ln > span { display: inline-block }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; scroll-behavior: auto !important }
+}

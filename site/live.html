@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Live — Veil</title>
+<meta name="description" content="Send a real message through Veil and watch every request, hardware proof, encryption step and signature as it happens.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300..700&family=Geist+Mono:wght@400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+</head>
+<body>
+<main id="main">
+<section class="live-hero" aria-labelledby="live-h">
+  <div class="veil" aria-hidden="true"><i></i><i></i><i></i></div>
+  <div class="fade-b" aria-hidden="true"></div>
+  <div class="wrap live-hero-in">
+    <span class="eyebrow" data-decrypt>LIVE / ONE MESSAGE, EVERY STEP</span>
+    <h1 id="live-h" class="display" data-split>Watch a message<br><em class="s">cross the wire.</em></h1>
+    <p class="lede" data-in=".2">Send a real question through the live relay. Your browser does every check itself, and each request, proof and signature appears below as it happens.</p>
+  </div>
+</section>
+
+<section class="wrap console-wrap" aria-label="Run the pipeline">
+  <form class="controls glass" id="controls">
+    <label class="eyebrow" for="q">Your question for Harbor &amp; Finch</label>
+    <div class="q-row">
+      <input id="q" type="text" maxlength="300" required autocomplete="off" value="Can you tell me how a first consultation works?">
+      <button class="btn" type="submit" id="go">Send for real</button>
+      <button class="btn ghost" type="button" id="replay">Replay a recorded run</button>
+    </div>
+    <div class="ctl-row">
+      <div class="status mono" id="status" role="status" aria-live="polite">Ready. Nothing has been sent.</div>
+      <div class="ctl-right">
+        <label class="mono speed-l" for="speed">Replay speed</label>
+        <select id="speed" class="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>
+        <button class="chip" type="button" id="pause" disabled>Pause</button>
+        <button class="chip" type="button" id="skip" disabled>Skip to end</button>
+      </div>
+    </div>
+    <p class="fine mono">A live run uses the demo site's NEAR AI credit, so the relay allows 20 requests a minute per visitor. The first request can take up to a minute if the free relay is asleep.</p>
+  </form>
+
+  <div class="stage-rail" id="rail" aria-label="Steps"></div>
+
+  <div class="board">
+    <div class="diagram glass" aria-label="Who talks to whom">
+      <div class="lens" role="group" aria-label="View as">
+        <span class="eyebrow">View as</span>
+        <div class="lens-chips" id="lens"></div>
+      </div>
+      <svg id="net" viewBox="0 30 1000 620" role="img" aria-labelledby="net-t net-d"><title id="net-t">Network of parties in one Veil request</title><desc id="net-d">Your browser talks to the site relay, which forwards to the NEAR AI gateway and the model enclave. Your browser also queries NEAR testnet and Intel collateral, and the relay forwards GPU evidence to NVIDIA.</desc></svg>
+      <p class="lens-note mono" id="lens-note"></p>
+    </div>
+
+    <div class="log glass" aria-label="Event log">
+      <div class="log-head">
+        <span class="eyebrow">Event log</span>
+        <div class="log-tools">
+          <div class="filters" id="filters" role="group" aria-label="Filter the log"></div>
+          <button class="chip" type="button" id="dl-log" disabled>Download log</button>
+        </div>
+      </div>
+      <ol class="log-list mono" id="log" aria-live="polite" aria-relevant="additions"></ol>
+      <p class="log-empty" id="log-empty">Press <b>Send for real</b> to run it from your browser, or <b>Replay a recorded run</b> to watch one instantly.</p>
+    </div>
+  </div>
+
+  <div class="result" id="result" hidden>
+    <div class="answer glass panel">
+      <span class="eyebrow">The answer, decrypted in your browser</span>
+      <p id="answer" class="answer-text"></p>
+    </div>
+    <div class="proof glass panel">
+      <span class="eyebrow">Proof</span>
+      <p id="proof-line" class="proof-line"></p>
+      <div class="proof-btns"><button class="btn sm" type="button" id="dl-receipt">Download the receipt</button><a class="btn sm ghost" href="./docs.html#receipts">How to verify it</a></div>
+    </div>
+    <div class="relay-saw glass panel">
+      <span class="eyebrow">Everything the relay received</span>
+      <pre id="relay-saw" class="mono"></pre>
+    </div>
+  </div>
+</section>
+</main>
+<script type="module" src="/src/live.ts"></script>
+</body>
+</html>
