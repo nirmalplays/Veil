@@ -41,13 +41,21 @@ With `policy.kb.mode: "sealed"` the relay never serves the passages (`/kb` is 40
 - The relay must be hosted by the site owner. This repo ships it as a Node script, not a managed service.
 - Testnet contract only.
 
-## Run the relay inside a TEE
+## Host the relay for free (Render)
 
-The relay holds your NEAR AI key and the seal secret, so on a normal server whoever runs the machine can read them. Run it in a TEE and they can't.
+Render's free web services run Docker images and, per Render, need no card. The relay image serves the demo site out of the box; to serve your own workspaces, add a `COPY` of their `<siteId>.json` files to `/app/widget/sites/` in `widget/Dockerfile`.
 
-1. Build and push the image (from the repo root): `docker build -f widget/Dockerfile -t <you>/veil-relay .`, then push it and note its `sha256` digest.
-2. Put `VEIL_RELAY_IMAGE=<you>/veil-relay@sha256:<digest>`, `NEARAI_API_KEY`, `SEAL_SECRET` and `AUDIT_TOKEN` in `widget/.env`.
-3. Deploy with Phala Cloud (dstack): `phala deploy --compose widget/docker-compose.tee.yml --env-file widget/.env`. The env file is encrypted to the enclave before it leaves your machine.
-4. Ask the running relay to prove it: `GET /relay-attestation?nonce=<64 hex characters>` returns an Intel TDX quote that carries your nonce, plus the compose hash of what is running.
+1. Build and push the image (from the repo root): `docker build -f widget/Dockerfile -t <you>/veil-relay .`, then `docker push <you>/veil-relay`.
+2. On Render: New → Web Service → Existing image → `docker.io/<you>/veil-relay@sha256:<digest>`, instance type Free.
+3. Add `NEARAI_API_KEY`, `SEAL_SECRET` and `AUDIT_TOKEN` as environment variables. Render sets `PORT`, and the relay listens on it.
+4. Point the widget at it: `data-relay="https://<service>.onrender.com/s/<siteId>"`.
 
-Status: the route and the container files are written. The route returns a clear 501 outside a TEE (tested). I have not deployed to Phala yet, so the quote path is untested, and the client does not yet verify the relay's quote the way it verifies the model's.
+A free service sleeps after 15 minutes with no traffic, and the next visitor waits while it wakes up.
+
+This is not a TEE. Render can read the API key, the seal secret, and a sealed knowledge base. Visitors' messages are still encrypted in their browser to NEAR AI's attested enclave, so the relay cannot read them. The widget says so: "How is this private?" → "Check the relay" shows "not in a TEE".
+
+## Proving where the relay runs (TEE)
+
+If the relay runs inside an Intel TDX confidential VM managed by [dstack](https://github.com/Dstack-TEE/dstack) (open source), it can prove what it runs: `GET /relay-attestation?nonce=<64 hex characters>` returns a TDX quote that carries the nonce, plus the measured compose. Outside a TEE the route answers 501. The widget's "Check the relay" runs `verifyRelayAttestation` (`client/src/verify.ts`): the nonce echo, the Intel quote and TCB status, debug mode, that REPORT_DATA is the nonce (dstack zero-pads it to 64 bytes), and that the event log and compose replay to the measured RTMR3 and MRCONFIGID. For the proof to name the image, the compose must give the image by literal digest, not a tag or a `${VAR}`.
+
+Status: no TEE host is set up, since each one needs a paid cloud account. The verification path was smoke-tested against a stand-in dstack socket that served a real TDX quote, with live Intel collateral: the quote verified as genuine and was rejected as a replay.

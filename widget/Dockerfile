@@ -1,4 +1,4 @@
-# Veil relay as a container, meant to run inside a TEE (dstack / Phala Cloud).
+# Veil relay as a container. Runs anywhere Docker does (free hosting: see "Host the relay for free" in widget/README.md); inside a dstack TEE it can also attest itself.
 # Build from the repository root:  docker build -f widget/Dockerfile -t veil-relay .
 # Pin the base image by digest when you publish, so the attested compose hash names exactly this build.
 FROM node:22-slim
@@ -12,6 +12,7 @@ COPY widget/relay.ts widget/
 COPY widget/demo/site.json widget/demo/site.json
 ENV PORT=8790
 EXPOSE 8790
-# Workspaces live on a volume (mounted at /data/sites). Secrets (NEARAI_API_KEY, SEAL_SECRET, AUDIT_TOKEN) arrive as encrypted env vars
-# that only the enclave can decrypt, so the host never sees them.
-CMD ["npx", "--prefix", "widget", "tsx", "widget/relay.ts", "/data/sites"]
+# Sites: the demo site is built in. Free hosts have no volumes, so to serve your own workspaces add a COPY of them to /app/widget/sites/ here.
+# Secrets (NEARAI_API_KEY, SEAL_SECRET, AUDIT_TOKEN) come from the host's environment settings, never from the image.
+# tsx is run directly (not through npx) so the container also works as a non-root user with a read-only home.
+CMD ["widget/node_modules/.bin/tsx", "widget/relay.ts"]
