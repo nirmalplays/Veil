@@ -51,8 +51,8 @@ function Hero({ rec }: { rec: Recorded | null }) {
           <h1 id="hero-h" className="display hero-h">{["AI", "you", "can"].map((w) => <span key={w} className="hw">{w}</span>)}<span className="hw accent">check,</span><br />{["not", "just", "trust."].map((w) => <span key={w} className="hw">{w}</span>)}</h1>
           <p className="lede hero-lede">Your words are encrypted in your browser to an AI running inside sealed, hardware-verified chips. The site, its server and the network carry them. None of them can read them.</p>
           <div className="hero-cta">
-            <Magnet padding={60} magnetStrength={4}><a className="star big" href="./live.html"><span>Watch a message go through</span></a></Magnet>
-            <a className="btn ghost" href="./docs.html">Read the docs</a>
+            <Magnet padding={60} magnetStrength={4}><a className="star big" href="/live"><span>Watch a message go through</span></a></Magnet>
+            <a className="btn ghost" href="/docs">Read the docs</a>
           </div>
         </div>
         <aside className="hero-side" aria-label="From a real run">
@@ -67,7 +67,7 @@ function Hero({ rec }: { rec: Recorded | null }) {
           </div>
           <nav className="side-links glass" aria-label="Try it">
             <span className="mono side-t">Try it now</span>
-            <a href="./live.html"><b>Live view</b><span>A real message, every step logged</span><HugeiconsIcon icon={ArrowRight01Icon} size={16} /></a>
+            <a href="/live"><b>Live view</b><span>A real message, every step logged</span><HugeiconsIcon icon={ArrowRight01Icon} size={16} /></a>
             <button type="button" onClick={openChat}><b>Demo chat</b><span>Ask a fictional law firm anything</span><HugeiconsIcon icon={ArrowRight01Icon} size={16} /></button>
           </nav>
         </aside>
@@ -221,13 +221,13 @@ function Split() {
           <Film src={FILMS.globe} className="split-film" />
           <div className="split-grade" />
           <span className="split-k mono">For visitors</span>
-          <div className="split-foot"><span className="split-big">Ask</span><div className="split-copy"><p>Ask anything. Then check the hardware, the rules and the signed receipt yourself.</p><a className="split-link" href="./docs.html#visitors">What the checks mean <HugeiconsIcon icon={ArrowRight01Icon} size={15} /></a></div></div>
+          <div className="split-foot"><span className="split-big">Ask</span><div className="split-copy"><p>Ask anything. Then check the hardware, the rules and the signed receipt yourself.</p><a className="split-link" href="/docs#visitors">What the checks mean <HugeiconsIcon icon={ArrowRight01Icon} size={15} /></a></div></div>
         </article>
         <article className="split-card">
           <Film src={FILMS.fan} className="split-film" />
           <div className="split-grade" />
           <span className="split-k mono">For site owners</span>
-          <div className="split-foot"><span className="split-big">Build</span><div className="split-copy"><p>One script tag, rules fingerprinted on NEAR, and a relay you can host for free.</p><a className="split-link" href="./docs.html#owners">Add it to your site <HugeiconsIcon icon={ArrowRight01Icon} size={15} /></a></div></div>
+          <div className="split-foot"><span className="split-big">Build</span><div className="split-copy"><p>One script tag, rules fingerprinted on NEAR, and a relay you can host for free.</p><a className="split-link" href="/docs#owners">Add it to your site <HugeiconsIcon icon={ArrowRight01Icon} size={15} /></a></div></div>
         </article>
       </div>
     </section>
@@ -353,7 +353,7 @@ function Final() {
         <p className="lede">Ask the demo assistant, or watch a real message cross the wire, every proof included.</p>
         <div className="final-cta">
           <button type="button" className="star big" onClick={openChat}><span>Open the chat</span></button>
-          <a className="btn ghost" href="./live.html">Watch it live</a>
+          <a className="btn ghost" href="/live">Watch it live</a>
         </div>
       </div>
     </section>

@@ -1,3 +1,4 @@
 node_modules
 dist
 public/veil-widget.js
+public/veil-wallet.js

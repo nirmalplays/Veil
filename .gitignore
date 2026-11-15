@@ -10,3 +10,6 @@ dist
 # workspaces saved from the app (local, user-made)
 widget/sites/
 web/public/veil-widget.js
+
+# NEAR testnet keys created by scripts/create-wallets.mjs
+wallets.local.json

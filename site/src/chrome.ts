@@ -11,17 +11,17 @@ export const mark = (size = 26) => `<svg width="${size}" height="${size}" viewBo
   <defs><mask id="vm${size}"><rect width="32" height="32" fill="#fff"/><path d="M16 9.5h14M16 15h14M16 20.5h14" stroke="#000" stroke-width="1.7"/></mask></defs>
   <path d="M2 4h7.2L16 22.6 22.8 4H30L19.6 29h-7.2z" fill="#fff" mask="url(#vm${size})"/></svg>`;
 
-const PAGES = [{ href: "./", label: "Home", id: "home" }, { href: "./live.html", label: "Live", id: "live" }, { href: "./docs.html", label: "Docs", id: "docs" }];
+const PAGES = [{ href: "/", label: "Home", id: "home" }, { href: "/live", label: "Live", id: "live" }, { href: "/docs", label: "Docs", id: "docs" }];
 
 export function chrome(active: "home" | "live" | "docs") {
   const links = PAGES.map((p) => `<a href="${p.href}"${p.id === active ? ' aria-current="page"' : ""}>${p.label}</a>`).join("") + `<a href="${REPO}" rel="noopener">GitHub</a>`;
   document.body.insertAdjacentHTML("afterbegin", `
 <a class="skip" href="#main">Skip to content</a>
 <header class="nav"><div class="nav-in">
-  <a class="brand" href="./" aria-label="Veil home">${mark()}<span>VEIL</span></a>
+  <a class="brand" href="/" aria-label="Veil home">${mark()}<span>VEIL</span></a>
   <nav class="nav-links" aria-label="Primary">${links}</nav>
   <div class="nav-cta">
-    <a class="star" href="./live.html" data-magnet><span>Watch a message go through</span></a>
+    <a class="star" href="/live" data-magnet><span>Watch a message go through</span></a>
     <button class="menu-btn" type="button" aria-label="Open menu" aria-expanded="false" aria-controls="sheet"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round"><path d="M4 9h16M4 15h10"/></svg></button>
   </div>
 </div></header>
@@ -46,7 +46,7 @@ export function chrome(active: "home" | "live" | "docs") {
     <p class="h2" style="max-width:640px">AI you can <span class="veiled">check,</span> not just trust.</p>
     <div style="display:flex;flex-wrap:wrap;gap:48px 72px">
       <nav class="foot-col" aria-label="Footer"><span class="eyebrow">Navigate</span>${PAGES.map((p) => `<a href="${p.href}">${p.label}</a>`).join("")}</nav>
-      <div class="foot-col"><span class="eyebrow">Build</span><a href="${REPO}" rel="noopener">Source on GitHub</a><a href="./docs.html#embed">Embed the widget</a><a href="./docs.html#relay">Host a relay</a></div>
+      <div class="foot-col"><span class="eyebrow">Build</span><a href="${REPO}" rel="noopener">Source on GitHub</a><a href="/docs#embed">Embed the widget</a><a href="/docs#relay">Host a relay</a></div>
       <div class="foot-col"><span class="eyebrow">On chain</span><a href="https://testnet.nearblocks.io/address/${CONTRACT}" rel="noopener">${CONTRACT}</a><a href="${RELAY}/config" rel="noopener">Live relay</a></div>
     </div>
   </div>

@@ -46,14 +46,14 @@
       <li><b>Every answer.</b> The enclave signs hashes of the exact request and response bytes. An opt-in receipt lets anyone confirm an answer came from that enclave under those rules.</li>
     </ul>
     <p>There are four pieces: the <b>widget</b> (one script on the site), the site's <b>relay</b> (a small server that holds the NEAR AI API key and forwards ciphertext), the <b>contract</b> on NEAR testnet (<code>veil-31da02.testnet</code>), and <b>NEAR AI Cloud</b>, where the model runs in a TEE.</p>
-    <div class="callout"><b>Fastest way to understand it:</b> open the <a href="./live.html">live view</a> and press Replay. All ten steps play out with their real values.</div>
+    <div class="callout"><b>Fastest way to understand it:</b> open the <a href="/live">live view</a> and press Replay. All ten steps play out with their real values.</div>
   </section>
 
   <section id="quickstart" data-group="Start">
     <h2>Three ways in</h2>
     <div class="ways">
       <a class="way glass spot" href="./#try"><span class="eyebrow">2 minutes</span><b>Chat with the demo</b><span>Harbor &amp; Finch, a fictional law firm. Open the chat on the home page and press "How is this private?".</span></a>
-      <a class="way glass spot" href="./live.html"><span class="eyebrow">1 minute</span><b>Watch the pipeline</b><span>Send a real message and see every request, proof and signature in a log.</span></a>
+      <a class="way glass spot" href="/live"><span class="eyebrow">1 minute</span><b>Watch the pipeline</b><span>Send a real message and see every request, proof and signature in a log.</span></a>
       <a class="way glass spot" href="#owners"><span class="eyebrow">About 30 minutes</span><b>Add it to your site</b><span>Write rules, register them on NEAR, host a free relay, paste one tag.</span></a>
     </div>
   </section>
@@ -127,6 +127,17 @@ docker push &lt;you&gt;/veil-relay</code></pre></div>
 <div class="code"><div class="bar"><span>site.json</span><button class="copy" type="button">Copy</button></div><pre><code>"allowedOrigins": ["https://www.example.com"],
 "ratePerMinute": 20,
 "maxTokens": 3000</code></pre></div>
+  </section>
+
+  <section id="pay" data-group="Site owners">
+    <h2>Charge per question in NEAR</h2>
+    <p>Your relay pays NEAR AI for every answer. To pass that cost on, set <code>PAY_TO</code> on the relay. Each visitor then gets a few free questions a day; after that the relay answers <code>402 Payment Required</code> with the price, and the widget or live page asks the visitor's NEAR wallet (Meteor, extension or web) to send it.</p>
+    <ol class="steps">
+      <li>The visitor approves a transfer of the price to your account in their wallet.</li>
+      <li>The browser sends the question again with the transaction id in the <code>X-Veil-Payment</code> header.</li>
+      <li>The relay looks the transaction up on NEAR itself: right receiver, enough NEAR, succeeded, recent, and never used before. Only then does it forward the encrypted question. If the AI doesn't answer, the payment can be used again.</li>
+    </ol>
+    <p>Check a relay's setting at <code>GET /pay</code>. The demo relay charges 0.01 NEAR on testnet after 3 free questions a day.</p>
   </section>
 
   <section id="rules" data-group="Site owners">
@@ -219,6 +230,8 @@ npm run test:contract     # NEAR contract, needs Rust 1.95</code></pre></div>
         <tr><td><code>PORT</code></td><td>No</td><td>Port to listen on (hosts set it; default 8790).</td></tr>
         <tr><td><code>SEAL_SECRET</code></td><td>For sealed bases</td><td>Makes sealing reproducible, so audits survive restarts.</td></tr>
         <tr><td><code>AUDIT_TOKEN</code></td><td>No</td><td>Turns on <code>POST /audit</code> for the owner.</td></tr>
+        <tr><td><code>PAY_TO</code></td><td>No</td><td>Turns on pay per question: the NEAR account that receives payments.</td></tr>
+        <tr><td><code>PAY_PRICE_NEAR</code>, <code>PAY_FREE_PER_DAY</code></td><td>No</td><td>Price per question (default 0.01) and free questions per visitor per day (default 3).</td></tr>
         <tr><td><code>NEARAI_BASE</code></td><td>No</td><td>Upstream API (default <code>https://cloud-api.near.ai</code>).</td></tr>
         <tr><td><code>DSTACK_SOCKET</code>, <code>VEIL_SOURCE</code></td><td>No</td><td>Only inside a dstack TEE: the guest agent socket, and where the code comes from.</td></tr>
       </tbody></table></div>

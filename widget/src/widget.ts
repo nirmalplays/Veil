@@ -64,6 +64,20 @@ footer button{border:0;background:none;color:${accent};text-decoration:underline
 function boot(site: Site) {
   const host = h("div"); const root = host.attachShadow({ mode: "open" });
   const ai = new NearAI("", `${relay}/v1`);
+  // the wallet code is a separate file next to this one, fetched only when a visitor has to pay
+  let walletP: Promise<{ pay: (i: unknown) => Promise<string> }> | undefined;
+  const loadWallet = () => walletP ??= new Promise((ok, no) => {
+    const w = (window as any).VeilWallet; if (w) return ok(w);
+    const s = document.createElement("script"); s.src = new URL("veil-wallet.js", tag!.src).href;
+    s.onload = () => ((window as any).VeilWallet ? ok((window as any).VeilWallet) : no(new Error("wallet script did not load")));
+    s.onerror = () => no(new Error("could not load the wallet script")); document.head.appendChild(s);
+  });
+  // pay per question: once the free questions are used, the relay asks for a NEAR payment from the visitor's wallet
+  ai.onPaymentRequired = async (info: { priceNear?: string; network?: string; payTo?: string }) => {
+    note.className = "note"; note.textContent = `You've used today's free questions. Each one now costs ${info.priceNear} NEAR (${info.network}). Approve the payment in your NEAR wallet…`;
+    try { const w = await loadWallet(); const h = await w.pay(info as any); note.textContent = "Paid. Sending your question…"; return h; }
+    catch (e) { note.className = "note err"; note.textContent = `No payment was made (${e instanceof Error ? e.message : e}).`; return null; }
+  };
   const thread: ChatMessage[] = [];
   let kbChunks: KbChunk[] = [];   // this workspace's own knowledge base, accepted only if it rebuilds the registered root
   let busy = false, blocked = "", pol: Registered | null = null, enclave: FullVerification | undefined;
@@ -195,7 +209,11 @@ function boot(site: Site) {
     ev.preventDefault();
     const text = input.value.trim(); if (!text || busy || blocked) return;
     input.value = ""; bubble("user", text); thread.push({ role: "user", content: text });
-    busy = true; note.className = "note"; note.textContent = enclave ? "Thinking…" : "Checking the secure enclave, then encrypting your message… (the first message takes a few seconds)"; render();
+    busy = true; note.className = "note"; render();
+    // a visible timer, so the first message's hardware check never looks like nothing is happening
+    const t0 = Date.now(), first = !enclave;
+    const tick = () => { if (!note.textContent?.startsWith("You've used") && !note.textContent?.startsWith("Paid")) note.textContent = `${first && !enclave ? "Verifying the AI's hardware (Intel and NVIDIA), then encrypting" : "Encrypted. Waiting for the answer"}… ${Math.round((Date.now() - t0) / 1000)}s`; };
+    tick(); const timer = setInterval(tick, 500);
     try {
       // Retrieval runs here, in the visitor's browser, so the question never reaches anyone unencrypted. The chosen chunks travel inside the encrypted request.
       let hits: KbHit[] = [];
@@ -220,7 +238,7 @@ function boot(site: Site) {
       note.textContent = "";
     } catch (e) {
       thread.pop(); note.className = "note err"; note.textContent = `Sorry, something went wrong: ${e instanceof Error ? e.message : e}`;
-    } finally { busy = false; render(); }
+    } finally { clearInterval(timer); busy = false; render(); }
   };
 
   bubble("assistant", site.greeting);

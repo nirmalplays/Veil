@@ -2,7 +2,7 @@
 
 **AI you can check, not just trust.**
 
-**Website:** [veil-nine-tau.vercel.app](https://veil-nine-tau.vercel.app) — try the chat, [watch a real message go through](https://veil-nine-tau.vercel.app/live.html) with every step logged, and read the [docs](https://veil-nine-tau.vercel.app/docs.html). Its source is in `site/`.
+**Website:** [veil-nine-tau.vercel.app](https://veil-nine-tau.vercel.app) — try the chat, [watch a real message go through](https://veil-nine-tau.vercel.app/live) with every step logged, and read the [docs](https://veil-nine-tau.vercel.app/docs). Its source is in `site/`.
 
 Every AI company says it protects your data. Veil lets you verify it. Your messages are encrypted in your browser to a hardware-attested enclave, the rules a business gives its AI are fingerprinted on NEAR, and every answer can come with a signed receipt anyone can check.
 

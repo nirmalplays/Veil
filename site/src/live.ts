@@ -131,6 +131,16 @@ async function beat(e: FlowEvent) {
       await sleep(1600); clearCards();
     }
   } else if (s === "send") {
+    if (e.text.startsWith("Free questions used up")) {
+      world.status("relay", "warn"); world.focus("relay", 1.2);
+      relayView = card("relay", [0, 2.4, 0], "warn", `<span class="mono c-k">Payment required</span><b>${esc(e.text.replace("Free questions used up: ", ""))}</b><p>${esc(e.detail ?? "")}</p><p>Approve the transfer in your NEAR wallet.</p>`);
+      return;
+    }
+    if (e.text.startsWith("Paid ")) {
+      if (relayView) dropCard(relayView); relayView = null; world.status("relay", "ok"); world.focus("overview", 1.2);
+      await world.fly(["you", "near"], "proof", e.text.replace(/ from .*/, ""), 1.1); world.chainCheck(true);
+      await world.fly(["near", "you"], "proof", "payment on chain", 0.9); refreshPay(); return;
+    }
     if (e.kind === "step") {
       const hex = (e.data ?? "").replace(/^.*"content":"/, "").slice(0, 120);
       const fly = world.fly(["you", "relay"], "cipher", "your question · locked", 1.3);
@@ -210,7 +220,12 @@ function reset() {
   (["you", "relay", "gateway", "enclave", "near", "intel", "nvidia"] as Station[]).forEach((s) => world.status(s, "idle"));
   world.resetGpus(); world.setThinking(false);
 }
-function lock(on: boolean) { busy = on; $<HTMLButtonElement>("replay").disabled = on; $<HTMLButtonElement>("go").disabled = on; $<HTMLButtonElement>("pause").disabled = !on; }
+let mode: "idle" | "replay" | "live" = "idle";
+/** A replay can always be interrupted by asking a real question; a live run can't be interrupted by another one. */
+function lock(on: boolean, m: typeof mode = "idle") {
+  busy = on; mode = on ? m : "idle";
+  $<HTMLButtonElement>("replay").disabled = on; $<HTMLButtonElement>("go").disabled = on && m === "live"; $<HTMLButtonElement>("pause").disabled = !on;
+}
 async function finish(ok: boolean) {
   world.focus("overview", 2);
   const checks = events.filter((e) => e.kind === "ok").length;
@@ -225,7 +240,7 @@ async function finish(ok: boolean) {
 }
 
 async function replay() {
-  if (busy) return; reset(); lock(true); const id = runId;
+  if (busy) return; reset(); lock(true, "replay"); const id = runId;
   try {
     const r = await (await fetch("./recorded-run.json")).json() as { question: string; receipt: unknown; events: FlowEvent[] };
     question = r.question; receipt = r.receipt; $<HTMLInputElement>("q").value = "";
@@ -236,12 +251,15 @@ async function replay() {
   } finally { if (id === runId) lock(false); }
 }
 async function live(q: string) {
-  if (busy) return; reset(); lock(true); const id = runId; question = q;
+  if (mode === "live") return;
+  gsap.globalTimeline.paused(false); reset(); lock(true, "live"); const id = runId; question = q; $("t-end").hidden = true;
   world.setScreen({ eyebrow: "Your question", text: q, mode: "plain" });
   try {
     draining = drain(id);
     const { runFlow } = await import("./flow");
-    const res = await runFlow({ relay: RELAY, question: q, emit: (e) => { if (id === runId) queue.push(e); }, onWait: (l) => { if (l && id === runId) techLine(`${l}…`); } });
+    const res = await runFlow({ relay: RELAY, question: q, emit: (e) => { if (id === runId) queue.push(e); }, onWait: (l) => { if (l && id === runId) techLine(`${l}…`); },
+      pay: async (info) => { try { const w = await import("./wallet"); return await w.pay(info); } catch (err) { techLine(`Payment not made: ${err instanceof Error ? err.message : err}`); return null; } } });
+    refreshPay();
     streamDone = true; receipt = res.receipt ?? null; await draining;
     if (id === runId) await finish(res.ok);
   } catch (err) { techLine(`Could not run: ${err instanceof Error ? err.message : err}`); streamDone = true; }
@@ -257,6 +275,26 @@ $("speed").addEventListener("click", () => { speed = speed === 1 ? 2 : speed ===
 const download = (name: string, data: unknown) => { const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([JSON.stringify(data, null, 2)], { type: "application/json" })); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 2000); };
 $("dl-log").addEventListener("click", () => download(`veil-log-${Date.now()}.json`, events));
 $("dl-receipt").addEventListener("click", () => receipt && download("veil-receipt.json", receipt));
+
+// ------------------------------------------------------------------ pay per question
+const payLine = $("t-pay"), walletBtn = $<HTMLButtonElement>("wallet");
+let payInfo: { enabled: boolean; priceNear?: string; network?: string; freeLeft?: number; freePerDay?: number } = { enabled: false };
+async function refreshPay() {
+  try { payInfo = await (await fetch(`${RELAY}/pay`)).json(); } catch { payInfo = { enabled: false }; }
+  walletBtn.hidden = !payInfo.enabled;
+  payLine.textContent = payInfo.enabled
+    ? `${payInfo.freeLeft ?? 0} of ${payInfo.freePerDay} free questions left today · then ${payInfo.priceNear} NEAR per question, paid from your wallet (${payInfo.network})`
+    : "";
+}
+walletBtn.addEventListener("click", async () => {
+  const w = await import("./wallet");
+  try { if (await w.connectedAccount(payInfo.network)) await w.disconnect(payInfo.network); else await w.connect(payInfo.network); } catch { /* picker closed */ }
+});
+setTimeout(async () => {
+  await refreshPay(); if (!payInfo.enabled) return;
+  const w = await import("./wallet");
+  w.onAccount((a) => { walletBtn.textContent = a ? `${a} · disconnect` : "Connect NEAR wallet"; walletBtn.classList.toggle("on", !!a); }, payInfo.network);
+}, 600);
 
 // start the story on its own: opening the page is enough to see it
 world.focus("overview", 0.01);
