@@ -1,113 +1,122 @@
-/* Veil site. Ink ground with an iris-violet glow. Bricolage Grotesque sets the headlines, Geist the reading text, and IBM Plex Mono anything
-   a machine produced: labels, hashes, ciphertext and logs. Accent words are "veiled": they sit as ciphertext and decrypt when read.
-   Two state colours exist only because logs need them: mint = verified, rose = failed. */
+/* Veil site. Near-black ground, soft white type, one lavender accent used sparingly.
+   Satoshi sets everything a person reads; Instrument Serif italic marks the one word in a headline that matters;
+   Geist Mono is for small machine labels only (eyebrows, hashes, logs). Mint and rose exist only for verified / failed states. */
 :root {
-  --ink: #050409;
-  --veil: hsl(252 92% 68%);
-  --veil-soft: hsl(252 92% 68% / .16);
-  --deep: hsl(250 60% 16%);
-  --mist: #DCE3F0;
-  --text: #fff;
-  --dim: rgba(255, 255, 255, .62);
-  --faint: rgba(255, 255, 255, .4);
-  --line: rgba(255, 255, 255, .12);
-  --glass: rgba(255, 255, 255, .04);
-  --ok: #9FF0C9;
-  --warn: #F5C77E;
-  --fail: #FF7A93;
-  --gutter: clamp(16px, 3vw, 44px);
-  --max: 1480px;
-  --sans: 'Geist', system-ui, sans-serif;
-  --mono: 'IBM Plex Mono', ui-monospace, monospace;
-  --display: 'Bricolage Grotesque', 'Geist', system-ui, sans-serif;
+  --ink: #060608;
+  --surface: #0E0E12;
+  --text: #F2F2F5;
+  --mist: #B6B6C3;
+  --dim: rgba(242, 242, 245, .6);
+  --faint: rgba(242, 242, 245, .38);
+  --line: rgba(255, 255, 255, .08);
+  --glass: rgba(255, 255, 255, .035);
+  --accent: #C9BBFF;
+  --accent-2: #9D86FF;
+  --deep: #17122A;
+  --veil: var(--accent-2);
+  --ok: #A6EBCB;
+  --warn: #F2CF94;
+  --fail: #FF8FA3;
+  --gutter: clamp(18px, 2.6vw, 48px);
+  --max: 1880px;
+  --sans: 'Satoshi', system-ui, -apple-system, sans-serif;
+  --display: 'Satoshi', system-ui, -apple-system, sans-serif;
+  --serif: 'Instrument Serif', Georgia, serif;
+  --mono: 'Geist Mono', ui-monospace, monospace;
   --ease: cubic-bezier(.16, 1, .3, 1);
   color-scheme: dark;
 }
 * { box-sizing: border-box }
 html { scroll-behavior: smooth; scroll-padding-top: 110px }
 html, body { margin: 0; background: var(--ink); color: var(--text) }
-body { font-family: var(--sans); -webkit-font-smoothing: antialiased; overflow-x: clip; line-height: 1.5 }
+body { font-family: var(--sans); font-weight: 400; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: optimizeLegibility; overflow-x: clip; line-height: 1.5 }
 a { color: inherit; text-decoration: none }
-::selection { background: var(--veil); color: #fff }
-:focus-visible { outline: 2px solid hsl(252 90% 74%); outline-offset: 3px; border-radius: 6px }
+::selection { background: var(--accent-2); color: #fff }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 6px }
 button, input, select, textarea { font: inherit; color: inherit }
 img, svg { display: block }
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap }
 .skip { position: fixed; left: 12px; top: -60px; z-index: 100; padding: 10px 16px; border-radius: 999px; background: #fff; color: #000; transition: top .2s }
 .skip:focus { top: 12px }
 
+/* type */
 .wrap { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter) }
-.eyebrow { font-family: var(--mono); font-size: 12px; letter-spacing: .2em; text-transform: uppercase; color: rgba(255, 255, 255, .7) }
-.display { margin: 0; font-family: var(--display); font-weight: 500; font-variation-settings: "wdth" 100, "opsz" 96; letter-spacing: -0.04em; line-height: .94; font-size: clamp(3rem, 8vw, 7.4rem) }
-.h2 { margin: 0; font-family: var(--display); font-weight: 500; font-variation-settings: "wdth" 100, "opsz" 72; letter-spacing: -0.035em; line-height: 1.02; font-size: clamp(2.1rem, 4.6vw, 4.2rem); text-wrap: balance }
-.h3 { margin: 0; font-family: var(--display); font-weight: 600; letter-spacing: -0.02em; font-size: clamp(1.25rem, 1.8vw, 1.6rem) }
-/* a veiled word: ciphertext under a hatch until it is read (fx.ts decrypts it on sight and re-veils it on hover) */
-.veiled { position: relative; display: inline-block; color: hsl(252 100% 80%); white-space: nowrap }
-.veiled::after { content: ""; position: absolute; left: -.04em; right: -.04em; bottom: .02em; height: .1em; background: hsl(252 92% 68%); transform-origin: left; transition: transform .8s var(--ease) }
-.veiled.cipher { font-family: var(--mono); font-weight: 400; letter-spacing: -0.02em; color: hsl(252 60% 62%); font-size: .82em }
-.veiled.cipher::after { transform: scaleX(0) }
-.manifesto-p .veiled, .doc h2 .veiled { color: hsl(252 100% 80%) }
-.lede { margin: 0; max-width: 40rem; font-size: clamp(1.05rem, 1.35vw, 1.25rem); line-height: 1.6; color: var(--mist) }
+.eyebrow { font-family: var(--mono); font-weight: 400; font-size: 11.5px; letter-spacing: .18em; text-transform: uppercase; color: var(--dim) }
+.display { margin: 0; font-family: var(--display); font-weight: 500; letter-spacing: -0.045em; line-height: .96; font-size: clamp(3rem, 7.6vw, 7.6rem) }
+.h2 { margin: 0; font-family: var(--display); font-weight: 500; letter-spacing: -0.04em; line-height: 1.02; font-size: clamp(2.2rem, 4.6vw, 4.6rem); text-wrap: balance }
+.h3 { margin: 0; font-family: var(--display); font-weight: 500; letter-spacing: -0.02em; font-size: clamp(1.25rem, 1.8vw, 1.6rem) }
+/* the accent: one word per headline, in serif italic */
+.accent, .veiled, em.s { font-family: var(--serif); font-style: italic; font-weight: 400; letter-spacing: -0.01em; color: var(--accent) }
+.display .accent, .display .veiled, .h2 .accent, .h2 .veiled { font-size: 1.06em }
+.lede { margin: 0; max-width: 38rem; font-size: clamp(1.05rem, 1.25vw, 1.2rem); line-height: 1.65; color: var(--mist) }
 .muted { color: var(--dim) }
 .mono { font-family: var(--mono) }
 
-/* ambient light behind inner-page heroes (the home hero draws its own cipher field instead) */
-@keyframes driftA { 0%, 100% { transform: translate(-6%, -4%) rotate(0deg) scale(1) } 50% { transform: translate(8%, 6%) rotate(8deg) scale(1.18) } }
+/* ambient light (kept for any page that still uses it) */
+@keyframes driftA { 0%, 100% { transform: translate(-6%, -4%) scale(1) } 50% { transform: translate(8%, 6%) scale(1.18) } }
 @keyframes driftB { 0%, 100% { transform: translate(6%, 4%) scale(1.05) } 50% { transform: translate(-10%, -6%) scale(.92) } }
-.veil { position: absolute; inset: 0; opacity: .6; filter: blur(60px); pointer-events: none }
+.veil { position: absolute; inset: 0; opacity: .5; filter: blur(70px); pointer-events: none }
 .veil i { position: absolute; border-radius: 50% }
-.veil i:nth-child(1) { left: 10%; top: 0; width: 70vw; height: 70vh; background: radial-gradient(closest-side, hsl(252 92% 68% / .9), transparent); animation: driftA 22s ease-in-out infinite }
-.veil i:nth-child(2) { right: 0; top: 20%; width: 60vw; height: 60vh; background: radial-gradient(closest-side, var(--deep), transparent); animation: driftB 26s ease-in-out infinite }
-.veil i:nth-child(3) { left: 30%; top: 30%; width: 40vw; height: 40vh; background: radial-gradient(closest-side, rgba(255, 255, 255, .3), transparent); animation: driftB 18s ease-in-out -6s infinite }
-.fade-b { position: absolute; inset: 0; background: linear-gradient(transparent 40%, #000); pointer-events: none }
+.veil i:nth-child(1) { left: 10%; top: 0; width: 70vw; height: 70vh; background: radial-gradient(closest-side, rgba(157, 134, 255, .7), transparent); animation: driftA 24s ease-in-out infinite }
+.veil i:nth-child(2) { right: 0; top: 20%; width: 60vw; height: 60vh; background: radial-gradient(closest-side, var(--deep), transparent); animation: driftB 28s ease-in-out infinite }
+.veil i:nth-child(3) { display: none }
+.fade-b { position: absolute; inset: 0; background: linear-gradient(transparent 40%, var(--ink)); pointer-events: none }
 
 /* surfaces */
-.glass { background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); box-shadow: inset 0 1px 1px rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .1) }
-.panel { border-radius: 22px; padding: clamp(18px, 2vw, 26px) }
+.glass { background: var(--glass); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px rgba(255, 255, 255, .07) }
+.panel { border-radius: 22px; padding: clamp(18px, 2vw, 28px) }
 .spot { position: relative; overflow: hidden }
-.spot::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), hsl(252 92% 68% / .16), transparent 60%) }
+.spot::before { content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0; transition: opacity .3s; background: radial-gradient(420px circle at var(--mx, 50%) var(--my, 50%), rgba(157, 134, 255, .1), transparent 60%) }
 .spot:hover::before { opacity: 1 }
 
-/* buttons */
-.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 48px; padding: 0 24px; border-radius: 999px; border: 0; cursor: pointer; background: #fff; color: #000; font-weight: 500; font-size: 15px; white-space: nowrap; transition: transform .3s var(--ease), box-shadow .3s }
-.btn:hover { box-shadow: 0 0 40px -6px hsl(252 92% 68% / .7) }
+/* buttons: white primary, glass secondary */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; height: 48px; padding: 0 24px; border-radius: 999px; border: 0; cursor: pointer; background: #fff; color: #08080A; font-weight: 500; font-size: 15px; letter-spacing: -0.005em; white-space: nowrap; transition: transform .3s var(--ease), box-shadow .3s, background .3s }
+.btn:hover { box-shadow: 0 0 0 6px rgba(255, 255, 255, .08) }
 .btn:disabled { opacity: .45; cursor: not-allowed; box-shadow: none }
-.btn.ghost { background: var(--glass); color: #fff; box-shadow: inset 0 1px 1px rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .16) }
-.btn.ghost:hover { background: rgba(255, 255, 255, .1) }
+.btn.ghost { background: rgba(255, 255, 255, .04); color: #fff; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .14) }
+.btn.ghost:hover { background: rgba(255, 255, 255, .09) }
 .btn.sm { height: 36px; padding: 0 14px; font-size: 13px }
-@keyframes scan { 0% { transform: translateX(-120%) } 60%, 100% { transform: translateX(320%) } }
 @keyframes blink { 50% { opacity: .15 } }
-.star { position: relative; display: inline-flex; border-radius: 999px; overflow: hidden; isolation: isolate; background: hsl(252 92% 64%); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 10px 30px -12px hsl(252 92% 60% / .9) }
-.star::before { content: ""; position: absolute; top: 0; bottom: 0; width: 34%; z-index: -1; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .45), transparent); animation: scan 3.6s ease-in-out infinite }
-.star > span { display: inline-flex; align-items: center; gap: 9px; height: 42px; padding: 0 20px; color: #fff; font-size: 14px; font-weight: 600; white-space: nowrap }
-.star > span::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px var(--ok); animation: blink 1.4s steps(2) infinite }
-.star:hover { box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), 0 0 44px -6px hsl(252 92% 64% / .9) }
-.chip { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .22); font-family: var(--mono); font-size: 11px; letter-spacing: .14em; text-transform: uppercase; color: var(--dim); background: transparent; cursor: pointer }
-.chip[aria-pressed="true"], .chip.on { background: #fff; color: #000; border-color: #fff }
+@keyframes orbitLight { to { transform: rotate(1turn) } }
+/* a dark pill with light travelling around its outline */
+.star { position: relative; display: inline-flex; padding: 1.2px; border-radius: 999px; overflow: hidden; isolation: isolate; background: rgba(255, 255, 255, .14); transition: box-shadow .4s var(--ease) }
+.star::before { content: ""; position: absolute; left: 50%; top: 50%; width: 140%; aspect-ratio: 1; translate: -50% -50%; z-index: -1; background: conic-gradient(from 0deg, transparent 0deg 200deg, #5EE6FF 240deg, #9D86FF 285deg, #ffffff 315deg, #FF7AD9 340deg, transparent 360deg); animation: orbitLight 4.2s linear infinite }
+.star > span { position: relative; display: inline-flex; align-items: center; gap: 10px; height: 44px; padding: 0 22px; border-radius: 999px; background: #08080A; color: #fff; font-size: 14.5px; font-weight: 500; letter-spacing: -0.005em; white-space: nowrap }
+.star.big > span { height: 52px; padding: 0 28px; font-size: 15.5px }
+.star:hover { box-shadow: 0 0 34px -6px rgba(157, 134, 255, .75), 0 0 60px -20px rgba(94, 230, 255, .5) }
+.star:hover::before { animation-duration: 2.4s }
+.chip { display: inline-flex; align-items: center; gap: 6px; padding: 7px 13px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .14); font-family: var(--sans); font-weight: 500; font-size: 13px; color: var(--dim); background: transparent; cursor: pointer; transition: background .25s, color .25s, border-color .25s }
+.chip:hover { color: #fff; border-color: rgba(255, 255, 255, .3) }
+.chip[aria-pressed="true"], .chip.on { background: #fff; color: #08080A; border-color: #fff }
 
 /* nav */
-.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding: 16px var(--gutter) 0; pointer-events: none }
-.nav-in { pointer-events: auto; position: relative; max-width: var(--max); margin: 0 auto; display: flex; align-items: center; justify-content: space-between; gap: 16px; height: 64px; padding: 0 10px 0 22px; border-radius: 999px; background: rgba(12, 12, 12, .55); backdrop-filter: blur(16px) saturate(1.2); -webkit-backdrop-filter: blur(16px) saturate(1.2); box-shadow: inset 0 1px 1px rgba(255, 255, 255, .14), inset 0 0 0 1px rgba(255, 255, 255, .08), 0 24px 60px -24px rgba(0, 0, 0, .9) }
-.brand { display: flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 700; letter-spacing: .16em; font-size: 15px }
-.brand svg { filter: drop-shadow(0 0 8px rgba(255, 255, 255, .4)) drop-shadow(0 0 22px hsl(252 92% 68% / .5)) }
-.nav-links { display: flex; gap: 2px; padding: 6px; border-radius: 999px; background: rgba(255, 255, 255, .08) }
-.nav-links a { padding: 7px 16px; border-radius: 999px; font-size: 14px; color: rgba(255, 255, 255, .72); transition: background .3s, color .3s }
-.nav-links a:hover { background: rgba(255, 255, 255, .1); color: #fff }
-.nav-links a[aria-current="page"] { background: #fff; color: #000 }
-.nav-cta { display: flex; align-items: center; gap: 8px }
-.menu-btn { display: none; width: 46px; height: 46px; border-radius: 999px; border: 0; cursor: pointer; place-items: center; background: rgba(255, 255, 255, .08) }
+.nav { position: fixed; top: 0; left: 0; right: 0; z-index: 50; padding: 18px var(--gutter) 0; pointer-events: none; transition: padding .6s var(--ease) }
+.nav-in { pointer-events: auto; position: relative; isolation: isolate; max-width: var(--max); margin: 0 auto; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 16px; height: 66px; padding: 0 8px 0 22px; border-radius: 999px; transition: max-width .8s var(--ease), height .6s var(--ease) }
+.nav-in::before { content: ""; position: absolute; inset: 0; z-index: -1; border-radius: inherit; background: rgba(8, 8, 11, .9); backdrop-filter: blur(20px) saturate(1.3); -webkit-backdrop-filter: blur(20px) saturate(1.3); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px rgba(255, 255, 255, .07), 0 30px 70px -30px rgba(0, 0, 0, .95); opacity: 0; transition: opacity .6s var(--ease) }
+.nav.scrolled { padding-top: 12px }
+.nav.scrolled .nav-in { max-width: 1240px; height: 62px }
+.nav.scrolled .nav-in::before { opacity: 1 }
+.brand { justify-self: start; display: flex; align-items: center; gap: 12px; font-family: var(--display); font-weight: 700; letter-spacing: .16em; font-size: 15px }
+.brand svg { filter: drop-shadow(0 0 8px rgba(255, 255, 255, .45)) drop-shadow(0 0 22px rgba(157, 134, 255, .55)) }
+.nav-links { justify-self: center; display: flex; gap: 2px; padding: 6px; border-radius: 999px; background: rgba(255, 255, 255, .06); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .08), inset 0 0 0 1px rgba(255, 255, 255, .06) }
+.nav-links a { position: relative; padding: 8px 18px; border-radius: 999px; font-size: 15px; font-weight: 500; letter-spacing: -0.005em; color: rgba(242, 242, 245, .62); transition: color .3s, background .3s }
+.nav-links a:hover { color: #fff; background: rgba(255, 255, 255, .06) }
+.nav-links a[aria-current="page"] { color: #fff }
+.nav-links a[aria-current="page"]::after { content: ""; position: absolute; left: 50%; bottom: 3px; width: 4px; height: 4px; margin-left: -2px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px var(--accent) }
+.nav-cta { justify-self: end; display: flex; align-items: center; gap: 8px }
+.menu-btn { display: none; width: 46px; height: 46px; border-radius: 999px; border: 0; cursor: pointer; place-items: center; background: rgba(255, 255, 255, .07) }
 .sheet { position: fixed; inset: 0; z-index: 70; pointer-events: none }
 .sheet > div { position: absolute; inset: 0; transform: translateY(-100%); transition: transform .7s cubic-bezier(.77, 0, .18, 1) }
 .sheet > div:nth-child(1) { background: var(--deep) }
-.sheet > div:nth-child(2) { background: #0d0d0d; transition-delay: .07s }
-.sheet > div:nth-child(3) { background: #000; transition-delay: .14s; display: flex; flex-direction: column; padding: 20px 24px 32px }
+.sheet > div:nth-child(2) { background: #0d0d10; transition-delay: .07s }
+.sheet > div:nth-child(3) { background: var(--ink); transition-delay: .14s; display: flex; flex-direction: column; padding: 20px 24px 32px }
 .sheet.open { pointer-events: auto }
 .sheet.open > div { transform: none }
 .sheet nav { margin-top: auto; display: flex; flex-direction: column; gap: 6px }
-.sheet nav a { font-size: clamp(2.6rem, 12vw, 4rem); font-weight: 500; letter-spacing: -0.04em; line-height: 1.05 }
+.sheet nav a { font-family: var(--display); font-size: clamp(2.6rem, 12vw, 4rem); font-weight: 500; letter-spacing: -0.045em; line-height: 1.05 }
 .sheet .top { display: flex; justify-content: space-between; align-items: center; height: 48px }
-.x-btn { width: 46px; height: 46px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .2); background: transparent; display: grid; place-items: center; cursor: pointer }
-@media (max-width: 860px) { .nav-links, .nav-cta .star { display: none } .menu-btn { display: grid } .nav-in { padding-left: 18px } }
+.x-btn { width: 46px; height: 46px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .18); background: transparent; display: grid; place-items: center; cursor: pointer }
+@media (max-width: 860px) { .nav-links, .nav-cta .star { display: none } .menu-btn { display: grid } .nav-in { padding-left: 18px; grid-template-columns: 1fr auto } .nav-in::before { opacity: 1 } }
 
 /* sections */
 .sec { padding: clamp(80px, 10vw, 150px) 0; position: relative }
@@ -115,28 +124,28 @@ img, svg { display: block }
 .rule { border-top: 1px solid var(--line) }
 
 /* code */
-.code { position: relative; border-radius: 16px; background: rgba(255, 255, 255, .035); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden }
-.code pre { margin: 0; padding: 18px 20px; overflow-x: auto; font: 13px/1.7 var(--mono); color: var(--mist); white-space: pre }
-.code .bar { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px 8px 18px; border-bottom: 1px solid var(--line); font: 11px var(--mono); letter-spacing: .16em; text-transform: uppercase; color: var(--faint) }
-.copy { border: 0; background: rgba(255, 255, 255, .08); border-radius: 999px; padding: 5px 12px; font: 11px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: #fff; cursor: pointer }
-.copy:hover { background: rgba(255, 255, 255, .16) }
-.tok-k { color: hsl(252 95% 78%) } .tok-s { color: var(--ok) } .tok-c { color: var(--faint) } .tok-a { color: var(--warn) }
+.code { position: relative; border-radius: 16px; background: rgba(255, 255, 255, .025); box-shadow: inset 0 0 0 1px var(--line); overflow: hidden }
+.code pre { margin: 0; padding: 18px 20px; overflow-x: auto; font: 13px/1.75 var(--mono); color: #D4D4DE; white-space: pre }
+.code .bar { display: flex; justify-content: space-between; align-items: center; padding: 8px 10px 8px 18px; border-bottom: 1px solid var(--line); font: 11px var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--faint) }
+.copy { border: 0; background: rgba(255, 255, 255, .07); border-radius: 999px; padding: 5px 12px; font: 500 12px var(--sans); color: #fff; cursor: pointer }
+.copy:hover { background: rgba(255, 255, 255, .14) }
+.tok-k { color: var(--accent) } .tok-s { color: var(--ok) } .tok-c { color: var(--faint) } .tok-a { color: var(--warn) }
 
 /* state words */
 .ok { color: var(--ok) } .warn { color: var(--warn) } .fail { color: var(--fail) }
 
 /* footer */
 .foot { position: relative; padding: clamp(80px, 10vw, 140px) 0 40px; overflow: hidden }
-.foot::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .25), transparent) }
-.foot::after { content: ""; position: absolute; left: 50%; top: -240px; width: 900px; max-width: 100%; height: 480px; transform: translateX(-50%); background: radial-gradient(50% 50% at 50% 50%, hsl(252 92% 68% / .12), transparent 70%); pointer-events: none }
+.foot::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 1px; background: linear-gradient(90deg, transparent, rgba(255, 255, 255, .16), transparent) }
+.foot::after { content: ""; position: absolute; left: 50%; top: -240px; width: 900px; max-width: 100%; height: 480px; transform: translateX(-50%); background: radial-gradient(50% 50% at 50% 50%, rgba(157, 134, 255, .1), transparent 70%); pointer-events: none }
 .foot-grid { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 56px 64px }
 .foot-col { display: flex; flex-direction: column; gap: 12px }
-.foot-col a { color: rgba(255, 255, 255, .8) } .foot-col a:hover { color: #fff }
-.wordmark { position: relative; margin-top: clamp(60px, 8vw, 110px); font-weight: 600; letter-spacing: -0.06em; line-height: .78; font-size: clamp(6rem, 27vw, 26rem); color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .16); user-select: none; text-align: center }
-.legal { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 28px; font: 12px var(--mono); letter-spacing: .08em; color: var(--faint) }
+.foot-col a { color: rgba(242, 242, 245, .75); font-weight: 500 } .foot-col a:hover { color: #fff }
+.wordmark { position: relative; margin-top: clamp(60px, 8vw, 110px); font-family: var(--display); font-weight: 700; letter-spacing: -0.06em; line-height: .78; font-size: clamp(6rem, 26vw, 28rem); color: transparent; -webkit-text-stroke: 1px rgba(255, 255, 255, .13); user-select: none; text-align: center }
+.legal { position: relative; display: flex; flex-wrap: wrap; justify-content: space-between; gap: 12px; margin-top: 28px; font: 12px var(--mono); letter-spacing: .06em; color: var(--faint) }
 
 /* reveal (fx.ts sets the start state only when motion is allowed) */
-[data-split] .ln { display: block; overflow: hidden; padding-bottom: .06em; margin-bottom: -.06em }
+[data-split] .ln { display: block; overflow: hidden; padding-bottom: .08em; margin-bottom: -.08em }
 [data-split] .ln > span { display: inline-block }
 
 html[data-motion="reduce"] *, html[data-motion="reduce"] *::before, html[data-motion="reduce"] *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; transition-duration: .001s !important; scroll-behavior: auto !important }
@@ -144,29 +153,9 @@ html[data-motion="reduce"] { scroll-behavior: auto }
 .motion-btn { border: 0; background: none; padding: 0; font: inherit; letter-spacing: inherit; color: var(--faint); cursor: pointer; text-decoration: underline; text-underline-offset: 3px }
 .motion-btn:hover { color: #fff }
 
-/* headline-like text everywhere uses the display face (prefixed with body to win over page stylesheets loaded later) */
-body .manifesto-p, body .path-btn .t, body .rely-list b, body .sheet nav a, body .aud-card b, body .way b, body .doc h2, body .wordmark, body .final h2 { font-family: var(--display); font-weight: 600; font-variation-settings: "wdth" 92, "opsz" 72; letter-spacing: -0.02em }
+/* headline-like text on the inner pages uses the display face */
+body .sheet nav a, body .aud-card b, body .way b, body .doc h2, body .wordmark { font-family: var(--display); letter-spacing: -0.035em }
 
-/* video clips */
-.clip { margin: 0; display: flex; flex-direction: column; gap: 12px }
-.clip-open { position: relative; display: block; width: 100%; padding: 0; border: 0; cursor: pointer; border-radius: 20px; overflow: hidden; background: #0b0912; box-shadow: inset 0 0 0 1px var(--line), 0 30px 80px -40px hsl(252 92% 50% / .6); aspect-ratio: 16 / 10 }
-.clip-open video { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block; transition: transform .8s var(--ease) }
-.clip-open:hover video { transform: scale(1.025) }
-.clip-rec { position: absolute; left: 14px; top: 12px; display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; border-radius: 999px; background: rgba(5, 4, 9, .7); font-size: 10.5px; letter-spacing: .18em; color: #fff }
-.clip-rec i { width: 7px; height: 7px; border-radius: 50%; background: var(--fail); box-shadow: 0 0 8px var(--fail); animation: blink 1.4s steps(2) infinite }
-.clip-play { position: absolute; right: 14px; bottom: 14px; width: 44px; height: 44px; border-radius: 50%; display: grid; place-items: center; background: #fff; color: #000; transform: scale(.9); opacity: .85; transition: transform .3s var(--ease), opacity .3s }
-.clip-open:hover .clip-play, .clip-open:focus-visible .clip-play { transform: scale(1); opacity: 1 }
-.clip figcaption { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; align-items: baseline }
-.clip-t { font-family: var(--display); font-weight: 600; font-size: 1.15rem; letter-spacing: -0.01em }
-.clip-m { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--faint) }
-.clip.inline { margin: 22px 0 30px }
-.clip-dlg { width: min(1280px, 94vw); max-height: 92vh; padding: 0; border: 0; border-radius: 22px; background: #0b0912; color: #fff; box-shadow: 0 0 0 1px var(--line), 0 40px 120px rgba(0, 0, 0, .8) }
-.clip-dlg::backdrop { background: rgba(5, 4, 9, .82); backdrop-filter: blur(6px) }
-.clip-dlg-in { display: flex; flex-direction: column; gap: 10px; padding: 14px }
-.clip-dlg-head { display: flex; justify-content: space-between; align-items: center; padding: 0 4px }
-.clip-dlg video { width: 100%; max-height: 74vh; border-radius: 14px; background: #000 }
-.clip-dlg-note { margin: 0 4px 2px; font-size: 11px; color: var(--faint); letter-spacing: .04em }
-
-/* inner-page heroes: a real film behind the headline */
-.page-film { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .55; pointer-events: none }
-.page-film-grade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(5, 4, 9, .92), rgba(5, 4, 9, .45) 55%, rgba(5, 4, 9, .2)), linear-gradient(transparent 50%, var(--ink)) }
+/* inner-page heroes: a film behind the headline */
+.page-film { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; opacity: .5; pointer-events: none }
+.page-film-grade { position: absolute; inset: 0; pointer-events: none; background: linear-gradient(90deg, rgba(6, 6, 8, .94), rgba(6, 6, 8, .5) 55%, rgba(6, 6, 8, .2)), linear-gradient(transparent 50%, var(--ink)) }

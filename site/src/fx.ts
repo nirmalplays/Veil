@@ -49,7 +49,7 @@ export function initFx() {
   const scramble = (t: string) => t.split("").map((c) => (c === " " ? " " : GLYPHS[(Math.random() * 16) | 0])).join("");
   const reveal = (v: HTMLElement) => { v.classList.add("cipher"); return decrypt(v, v.dataset.text, 38).then(() => v.classList.remove("cipher")); };
   veiled.forEach((v) => { v.dataset.text = v.textContent ?? ""; v.setAttribute("aria-label", v.dataset.text); });
-  if (!reduced && "IntersectionObserver" in window) {
+  if (false as boolean) {   // accent words are a serif accent now, not scrambled
     veiled.forEach((v) => { v.textContent = scramble(v.dataset.text!); v.classList.add("cipher"); });
     const iov = new IntersectionObserver((es) => es.forEach((en) => { if (en.isIntersecting) { iov.unobserve(en.target); setTimeout(() => reveal(en.target as HTMLElement), 350); } }), { rootMargin: "0px 0px -15% 0px" });
     veiled.forEach((v) => iov.observe(v));

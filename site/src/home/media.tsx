@@ -28,18 +28,3 @@ export function Film({ src, className = "", eager = false }: { src: string; clas
   }, [src, eager]);
   return <video ref={ref} className={`film ${className}`} muted loop playsInline preload={eager ? "auto" : "none"} aria-hidden="true" />;
 }
-
-/** One of Veil's own screen recordings (site/public/media). */
-export function Recording({ id }: { id: "run" | "chat" | "type" }) {
-  const ref = useRef<HTMLVideoElement>(null);
-  useEffect(() => {
-    const v = ref.current!;
-    const io = new IntersectionObserver(([e]) => { if (e.isIntersecting && !reduced) { v.preload = "auto"; v.play().catch(() => {}); } else v.pause(); }, { threshold: 0.3 });
-    io.observe(v); return () => io.disconnect();
-  }, []);
-  return (
-    <video ref={ref} className="rec-video" muted loop playsInline preload="none" poster={`./media/${id}.jpg`}>
-      <source src={`./media/${id}.webm`} type="video/webm" /><source src={`./media/${id}.mp4`} type="video/mp4" />
-    </video>
-  );
-}

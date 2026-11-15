@@ -18,7 +18,7 @@ const el = <K extends keyof SVGElementTagNameMap>(tag: K, attrs: Record<string, 
 };
 net.insertAdjacentHTML("beforeend", `<defs>
   <filter id="glow" x="-200%" y="-200%" width="500%" height="500%"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
-  <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0v7" stroke="hsl(252 92% 68% / .22)" stroke-width="2"/></pattern>
+  <pattern id="hatch" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><path d="M0 0v7" stroke="rgba(157, 134, 255, .22)" stroke-width="2"/></pattern>
 </defs>`);
 const gEdges = el("g", {}, net), gPk = el("g", {}, net), gNodes = el("g", {}, net);
 const edgeEls = new Map<string, SVGLineElement>();

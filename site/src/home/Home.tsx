@@ -4,19 +4,16 @@ import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { useGSAP } from "@gsap/react";
 import { HugeiconsIcon } from "@hugeicons/react";
 import { CpuIcon, SquareLock02Icon, SignatureIcon, CheckmarkBadge01Icon, SourceCodeIcon, ArrowRight01Icon } from "@hugeicons/core-free-icons";
-import SplitText from "../rb/SplitText/SplitText";
 import ScrollReveal from "../rb/ScrollReveal/ScrollReveal";
 import DecryptedText from "../rb/DecryptedText/DecryptedText";
 import CountUp from "../rb/CountUp/CountUp";
 import LogoLoop from "../rb/LogoLoop/LogoLoop";
-import ScrollStack, { ScrollStackItem } from "../rb/ScrollStack/ScrollStack";
 import SpotlightCard from "../rb/SpotlightCard/SpotlightCard";
-import StarBorder from "../rb/StarBorder/StarBorder";
 import Magnet from "../rb/Magnet/Magnet";
 import { e2eeEncryptKeep } from "../../../client/src/e2ee.js";
 import type { FlowEvent } from "../flow-meta";
 import { reduced } from "../fx";
-import { Film, FILMS, Recording } from "./media";
+import { Film, FILMS } from "./media";
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -39,6 +36,7 @@ function Hero({ rec }: { rec: Recorded | null }) {
     if (reduced) return;
     // the hero screen recedes into the page as you scroll away
     gsap.to(".hero-screen", { scrollTrigger: { trigger: ref.current, start: "top top", end: "bottom top", scrub: true }, rotateX: 14, scale: 0.86, borderRadius: 40, ease: "none" });
+    gsap.fromTo(".hw", { opacity: 0, yPercent: 60, filter: "blur(10px)" }, { opacity: 1, yPercent: 0, filter: "blur(0px)", duration: 1.1, stagger: 0.07, ease: "expo.out", delay: 0.15 });
     gsap.to(".hero-copy", { scrollTrigger: { trigger: ref.current, start: "top top", end: "60% top", scrub: true }, y: -80, opacity: 0, ease: "none" });
   }, { scope: ref });
   return (
@@ -50,10 +48,10 @@ function Hero({ rec }: { rec: Recorded | null }) {
       <div className="wrap hero-in">
         <div className="hero-copy">
           <span className="eyebrow"><span className="dot" />Private AI on NEAR</span>
-          <SplitText tag="h1" text="AI you can check, not just trust." className="display hero-h" splitType="words" delay={70} duration={1} from={{ opacity: 0, y: 60, filter: "blur(8px)" }} to={{ opacity: 1, y: 0, filter: "blur(0px)" }} trigger="load" textAlign="left" />
+          <h1 id="hero-h" className="display hero-h">{["AI", "you", "can"].map((w) => <span key={w} className="hw">{w}</span>)}<span className="hw accent">check,</span><br />{["not", "just", "trust."].map((w) => <span key={w} className="hw">{w}</span>)}</h1>
           <p className="lede hero-lede">Your words are encrypted in your browser to an AI running inside sealed, hardware-verified chips. The site, its server and the network carry them. None of them can read them.</p>
           <div className="hero-cta">
-            <Magnet padding={60} magnetStrength={4}><a className="btn" href="./live.html">Watch a message go through</a></Magnet>
+            <Magnet padding={60} magnetStrength={4}><a className="star big" href="./live.html"><span>Watch a message go through</span></a></Magnet>
             <a className="btn ghost" href="./docs.html">Read the docs</a>
           </div>
         </div>
@@ -93,38 +91,6 @@ function Statement() {
   );
 }
 
-/* ---------------------------------------------------------------- pinned: trust us */
-const TRUSTS = ["Trust the privacy policy.", "Trust the server.", "Trust the company.", "Trust the next update."];
-function TrustPin() {
-  const ref = useRef<HTMLElement>(null);
-  useGSAP(() => {
-    const lines = gsap.utils.toArray<HTMLElement>(".trust-line");
-    if (reduced) { lines.forEach((l) => l.classList.add("struck")); gsap.set(".trust-end", { opacity: 1, y: 0 }); return; }
-    const tl = gsap.timeline({ scrollTrigger: { trigger: ref.current, start: "top top", end: "+=220%", scrub: 0.6, pin: ".trust-stage" } });
-    lines.forEach((l) => {
-      tl.fromTo(l, { opacity: 0.25 }, { opacity: 1, duration: 0.3 })
-        .fromTo(l.querySelector(".strike"), { scaleX: 0 }, { scaleX: 1, duration: 0.5, ease: "power2.inOut" })
-        .to(l, { opacity: 0.32, duration: 0.25 });
-    });
-    tl.fromTo(".trust-end", { opacity: 0, y: 60, filter: "blur(10px)" }, { opacity: 1, y: 0, filter: "blur(0px)", duration: 0.8 })
-      .fromTo(".trust-film", { opacity: 0.35, scale: 1.1 }, { opacity: 0.7, scale: 1, duration: 1.2 }, "<");
-  }, { scope: ref });
-  return (
-    <section className="h-trust" ref={ref} aria-labelledby="trust-h">
-      <div className="trust-stage">
-        <Film src={FILMS.door} className="trust-film" />
-        <div className="trust-grade" />
-        <div className="wrap trust-in">
-          <span className="eyebrow">02 · The habit</span>
-          <h2 id="trust-h" className="h2">“Trust us” is not a <span className="accent">privacy policy.</span></h2>
-          <ul className="trust-list">{TRUSTS.map((t) => <li key={t} className="trust-line"><span>{t}</span><i className="strike" /></li>)}</ul>
-          <p className="trust-end"><DecryptedText text="Check it instead." animateOn="view" sequential speed={40} revealDirection="start" className="te-done" encryptedClassName="te-enc" /></p>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 /* ---------------------------------------------------------------- the cipher (signature moment) */
 const KEY = "5a0210f2442c79355784f9de021985429561da5bacc3a4424b01ac52b7e0caff";
 function Cipher({ rec }: { rec: Recorded | null }) {
@@ -137,7 +103,7 @@ function Cipher({ rec }: { rec: Recorded | null }) {
     <section className="h-cipher" aria-labelledby="cipher-h">
       <div className="wrap cipher-grid">
         <div className="cipher-head">
-          <span className="eyebrow">03 · Try it here</span>
+          <span className="eyebrow">02 · Try it here</span>
           <h2 id="cipher-h" className="h2">Type something <span className="accent">private.</span></h2>
           <p className="lede">This box encrypts with Veil's real code, in this tab, to an enclave key that passed every hardware check. The right side is all the site, its server and the network ever get. It changes on every keystroke because each message gets a fresh one-time key.</p>
         </div>
@@ -211,7 +177,7 @@ function Loop({ rec }: { rec: Recorded | null }) {
           {STEPS.map((s, i) => <span key={s.k} className={i === active ? "on" : ""}>{s.k}</span>)}
         </div>
         <div className="loop-head">
-          <span className="eyebrow ink">04 · How it works</span>
+          <span className="eyebrow ink">03 · How it works</span>
           <h2 id="loop-h" className="h2 ink">We don't ask for trust. <span className="accent">We hand you the proof.</span></h2>
         </div>
         <div className="loop-grid">
@@ -275,41 +241,8 @@ function Marquee() {
   const row = (items: string[]) => items.map((t) => ({ node: <span className="mq-item">{t}<i>•</i></span>, title: t }));
   return (
     <section className="h-marquee" aria-label="Built on">
-      <LogoLoop logos={row(TECH)} speed={60} direction="left" logoHeight={64} gap={28} pauseOnHover fadeOut fadeOutColor="#050409" ariaLabel="Technology Veil is built on" />
-      <LogoLoop logos={row(PROMISES)} speed={45} direction="right" logoHeight={64} gap={28} pauseOnHover fadeOut fadeOutColor="#050409" ariaLabel="What Veil promises" className="mq-dim" />
-    </section>
-  );
-}
-
-/* ---------------------------------------------------------------- recordings (scroll stack) */
-const RECS = [
-  { id: "run" as const, n: "01", t: "A real message through the pipeline", d: "The live view, from Send to a verified receipt. Sixteen seconds, real time.", tags: ["Live view", "54 events", "Receipt verified"] },
-  { id: "chat" as const, n: "02", t: "A real conversation with the widget", d: "The demo assistant answering a real question, then the privacy panel showing what was checked.", tags: ["Widget", "Policy v2 on NEAR", "Encrypted"] },
-  { id: "type" as const, n: "03", t: "Encrypted as you type", d: "Every keystroke re-encrypted with a fresh one-time key. Watch the plaintext never leave.", tags: ["Hero", "XChaCha20-Poly1305", "In the browser"] },
-];
-function Recordings() {
-  return (
-    <section className="h-recs" aria-labelledby="recs-h">
-      <div className="wrap">
-        <div className="recs-head">
-          <span className="eyebrow">05 · Recorded, not rendered</span>
-          <h2 id="recs-h" className="h2">Real sessions. <span className="accent">Real time.</span></h2>
-          <p className="lede">Screen recordings of this site talking to the live relay and the real enclave. Nothing in them is mocked.</p>
-        </div>
-      </div>
-      <ScrollStack useWindowScroll itemDistance={120} itemStackDistance={36} stackPosition="18%" baseScale={0.86} itemScale={0.04} dimAmount={0.35} blurAmount={1}>
-        {RECS.map((r) => (
-          <ScrollStackItem key={r.id} itemClassName="rec-card">
-            <div className="rec-info">
-              <span className="rec-n">{r.n}</span>
-              <h3>{r.t}</h3>
-              <p>{r.d}</p>
-              <ul className="rec-tags">{r.tags.map((t) => <li key={t} className="mono">{t}</li>)}</ul>
-            </div>
-            <div className="rec-media"><Recording id={r.id} /><span className="rec-badge mono"><i />REC</span></div>
-          </ScrollStackItem>
-        ))}
-      </ScrollStack>
+      <LogoLoop logos={row(TECH)} speed={60} direction="left" logoHeight={64} gap={28} pauseOnHover fadeOut fadeOutColor="#060608" ariaLabel="Technology Veil is built on" />
+      <LogoLoop logos={row(PROMISES)} speed={45} direction="right" logoHeight={64} gap={28} pauseOnHover fadeOut fadeOutColor="#060608" ariaLabel="What Veil promises" className="mq-dim" />
     </section>
   );
 }
@@ -335,7 +268,7 @@ function WhoSees() {
     <section className="h-who" aria-labelledby="who-h">
       <div className="wrap">
         <div className="who-head">
-          <span className="eyebrow">06 · Who sees what</span>
+          <span className="eyebrow">04 · Who sees what</span>
           <h2 id="who-h" className="h2">Pick a party. <span className="accent">See what it gets.</span></h2>
         </div>
         <div className="who-tabs" role="tablist" aria-label="Parties">
@@ -370,7 +303,7 @@ function Different() {
     <section className="h-diff" aria-labelledby="diff-h">
       <div className="wrap">
         <div className="diff-head">
-          <span className="eyebrow">07 · Different by design</span>
+          <span className="eyebrow">05 · Different by design</span>
           <h2 id="diff-h" className="h2">Privacy you don't have to <span className="accent">take on faith.</span></h2>
         </div>
         <div className="diff-grid">
@@ -419,7 +352,7 @@ function Final() {
         <h2 id="final-h" className="display final-h">Have something <span className="accent">private</span> to ask?</h2>
         <p className="lede">Ask the demo assistant, or watch a real message cross the wire, every proof included.</p>
         <div className="final-cta">
-          <StarBorder as="button" type="button" onClick={openChat} className="sb" color="#9d8bff" duration={5}>Open the chat</StarBorder>
+          <button type="button" className="star big" onClick={openChat}><span>Open the chat</span></button>
           <a className="btn ghost" href="./live.html">Watch it live</a>
         </div>
       </div>
@@ -434,12 +367,10 @@ export default function Home() {
     <>
       <Hero rec={rec} />
       <Statement />
-      <TrustPin />
       <Cipher rec={rec} />
       <Loop rec={rec} />
       <Split />
       <Marquee />
-      <Recordings />
       <WhoSees />
       <Different />
       <Built />

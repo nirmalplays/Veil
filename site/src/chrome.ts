@@ -31,6 +31,10 @@ export function chrome(active: "home" | "live" | "docs") {
 </div></div>`);
   const sheet = document.getElementById("sheet")!, open = document.querySelector<HTMLButtonElement>(".menu-btn")!;
   const set = (on: boolean) => { sheet.classList.toggle("open", on); sheet.setAttribute("aria-hidden", String(!on)); open.setAttribute("aria-expanded", String(on)); document.body.style.overflow = on ? "hidden" : ""; if (on) sheet.querySelector<HTMLElement>(".x-btn")?.focus(); else open.focus(); };
+  // the header condenses into a glass pill once the page has scrolled
+  const navEl = document.querySelector<HTMLElement>(".nav")!;
+  const onScroll = () => navEl.classList.toggle("scrolled", scrollY > 40);
+  addEventListener("scroll", onScroll, { passive: true }); onScroll();
   open.onclick = () => set(true);
   sheet.querySelector<HTMLButtonElement>(".x-btn")!.onclick = () => set(false);
   sheet.querySelectorAll("nav a").forEach((a) => a.addEventListener("click", () => set(false)));

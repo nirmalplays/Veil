@@ -1,5 +1,5 @@
 /* Home page. Dark cinematic sections with real films behind them, one light section for contrast, and scroll-driven scenes. */
-.accent { color: hsl(252 100% 80%) }
+.accent { color: var(--accent) }
 .eyebrow .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: var(--ok); box-shadow: 0 0 10px var(--ok); margin-right: 10px; vertical-align: 1px }
 .film { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block }
 
@@ -7,7 +7,7 @@
 .h-hero { position: relative; height: 100svh; min-height: 680px; perspective: 1400px; overflow: clip }
 .hero-screen { position: absolute; inset: 0; overflow: hidden; transform-origin: 50% 100%; background: #07050d; will-change: transform }
 .hero-film { opacity: .92; object-position: 60% 50% }
-.hero-grade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(5, 4, 9, .9) 0%, rgba(5, 4, 9, .55) 40%, rgba(5, 4, 9, .1) 70%), linear-gradient(transparent 55%, rgba(5, 4, 9, .95)) }
+.hero-grade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(6, 6, 8, .9) 0%, rgba(6, 6, 8, .55) 40%, rgba(6, 6, 8, .1) 70%), linear-gradient(transparent 55%, rgba(6, 6, 8, .95)) }
 .hero-in { position: relative; height: 100%; display: grid; grid-template-columns: minmax(0, 1.4fr) minmax(0, .6fr); align-items: end; gap: 40px; padding-bottom: clamp(48px, 9vh, 96px) }
 .hero-copy { display: flex; flex-direction: column; gap: 24px; max-width: 900px }
 .hero-h { font-size: clamp(3rem, 7.6vw, 7.2rem) !important; line-height: .94 !important }
@@ -25,7 +25,7 @@
 .side-links a:hover, .side-links button:hover { background: rgba(255, 255, 255, .04) }
 .side-links b { font-weight: 500; font-size: 15px }
 .side-links span { grid-row: 2; color: var(--dim); font-size: 12.5px }
-.side-links svg { grid-row: 1 / span 2; grid-column: 2; color: hsl(252 100% 80%) }
+.side-links svg { grid-row: 1 / span 2; grid-column: 2; color: var(--accent) }
 .scroll-cue { position: absolute; left: 50%; bottom: 18px; transform: translateX(-50%); font-size: 10px; letter-spacing: .3em; text-transform: uppercase; color: var(--faint) }
 .scroll-cue::after { content: ""; display: block; width: 1px; height: 26px; margin: 8px auto 0; background: linear-gradient(var(--faint), transparent); animation: cue 1.8s ease-in-out infinite }
 @keyframes cue { 0% { transform: scaleY(0); transform-origin: top } 50% { transform: scaleY(1); transform-origin: top } 51% { transform-origin: bottom } 100% { transform: scaleY(0); transform-origin: bottom } }
@@ -37,65 +37,52 @@
 .statement { margin: 0 }
 .statement-t { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(2rem, 4.8vw, 4.6rem); letter-spacing: -0.035em; line-height: 1.08; max-width: 1240px }
 
-/* ---------- trust (pinned) ---------- */
-.h-trust { position: relative }
-.trust-stage { position: relative; height: 100svh; overflow: hidden; display: flex; align-items: center }
-.trust-film { opacity: .35; object-position: 50% 40% }
-.trust-grade { position: absolute; inset: 0; background: radial-gradient(70% 70% at 70% 50%, transparent, rgba(5, 4, 9, .85) 70%), linear-gradient(90deg, rgba(5, 4, 9, .92), rgba(5, 4, 9, .4) 60%) }
-.trust-in { position: relative; display: flex; flex-direction: column; gap: 26px }
-.trust-list { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 6px }
-.trust-line { position: relative; align-self: flex-start; font-family: var(--display); font-weight: 400; font-size: clamp(1.6rem, 3.2vw, 2.9rem); letter-spacing: -0.03em; line-height: 1.18; color: #fff }
-.trust-line .strike { position: absolute; left: -2%; right: -2%; top: 54%; height: .07em; background: hsl(348 100% 74%); transform-origin: left; transform: scaleX(0) }
-.trust-line.struck { opacity: .32 } .trust-line.struck .strike { transform: scaleX(1) }
-.trust-end { margin: 18px 0 0; font-family: var(--display); font-weight: 600; font-size: clamp(2.6rem, 6.4vw, 6rem); letter-spacing: -0.04em; line-height: 1; opacity: 0 }
-.te-done { color: hsl(252 100% 82%) } .te-enc { color: hsl(252 50% 55%); font-family: var(--mono); font-weight: 400 }
-
 /* ---------- cipher ---------- */
 .h-cipher { padding: clamp(110px, 14vw, 190px) 0; position: relative }
-.h-cipher::before { content: ""; position: absolute; left: 50%; top: 10%; width: min(1100px, 90vw); height: 70%; transform: translateX(-50%); background: radial-gradient(50% 50% at 50% 50%, hsl(252 92% 60% / .14), transparent 70%); pointer-events: none }
+.h-cipher::before { content: ""; position: absolute; left: 50%; top: 10%; width: min(1100px, 90vw); height: 70%; transform: translateX(-50%); background: radial-gradient(50% 50% at 50% 50%, rgba(157, 134, 255, .14), transparent 70%); pointer-events: none }
 .cipher-grid { position: relative; display: grid; grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 96px); align-items: center }
 .cipher-head { display: flex; flex-direction: column; gap: 22px; align-items: flex-start }
 .cipher-card { border-radius: 28px !important; padding: clamp(22px, 3vw, 36px) !important; display: flex; flex-direction: column; gap: 12px; background: rgba(255, 255, 255, .03) !important; box-shadow: inset 0 0 0 1px var(--line) }
 .cipher-l { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: var(--faint) }
-.cipher-in { width: 100%; border: 0; outline: 0; background: transparent; color: #fff; font-family: var(--display); font-size: clamp(1.3rem, 2vw, 1.8rem); letter-spacing: -0.02em; padding: 4px 0 12px; border-bottom: 1px solid rgba(255, 255, 255, .22); caret-color: hsl(252 92% 70%) }
-.cipher-in:focus { border-bottom-color: hsl(252 92% 70%) }
-.cipher-sep { display: flex; align-items: center; gap: 12px; margin: 10px 0; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: hsl(252 95% 80%) }
-.cipher-sep span { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, hsl(252 92% 68% / .8), transparent) }
-.cipher-out { margin: 0; min-height: 9em; max-height: 11em; overflow: hidden; word-break: break-all; font-size: 13px; line-height: 1.6; color: hsl(252 100% 82%); text-shadow: 0 0 20px hsl(252 92% 62% / .6); mask-image: linear-gradient(#000 70%, transparent) }
+.cipher-in { width: 100%; border: 0; outline: 0; background: transparent; color: #fff; font-family: var(--display); font-size: clamp(1.3rem, 2vw, 1.8rem); letter-spacing: -0.02em; padding: 4px 0 12px; border-bottom: 1px solid rgba(255, 255, 255, .22); caret-color: var(--accent-2) }
+.cipher-in:focus { border-bottom-color: var(--accent-2) }
+.cipher-sep { display: flex; align-items: center; gap: 12px; margin: 10px 0; font-size: 10.5px; letter-spacing: .2em; text-transform: uppercase; color: var(--accent) }
+.cipher-sep span { flex: 1; height: 1px; background: linear-gradient(90deg, transparent, rgba(157, 134, 255, .8), transparent) }
+.cipher-out { margin: 0; min-height: 9em; max-height: 11em; overflow: hidden; word-break: break-all; font-size: 13px; line-height: 1.6; color: var(--accent); text-shadow: 0 0 20px rgba(157, 134, 255, .6); mask-image: linear-gradient(#000 70%, transparent) }
 .cipher-meta { margin: 0; font-size: 11px; color: var(--faint) }
 @media (max-width: 900px) { .cipher-grid { grid-template-columns: minmax(0, 1fr) } }
 
 /* ---------- loop (light) ---------- */
 .h-loop { background: #F3F2F7; color: #0b0912; padding: clamp(90px, 12vw, 170px) 0 clamp(90px, 12vw, 160px); border-radius: 40px 40px 0 0; position: relative; z-index: 2 }
-.eyebrow.ink { color: rgba(11, 9, 18, .55) } .h2.ink { color: #0b0912 } .h-loop .accent { color: hsl(252 70% 52%) }
-.loop-words { position: sticky; top: 88px; z-index: 3; display: flex; flex-wrap: nowrap; gap: 0 .32em; font-family: var(--display); font-weight: 600; font-size: clamp(1.5rem, 4.6vw, 4.4rem); letter-spacing: -0.045em; line-height: 1; margin: 0 calc(var(--gutter) * -1) 70px; padding: 16px var(--gutter) 22px; pointer-events: none; background: linear-gradient(#F3F2F7 78%, rgba(243, 242, 247, 0)); overflow: hidden }
+.eyebrow.ink { color: rgba(11, 9, 18, .55) } .h2.ink { color: #0b0912 } .h-loop .accent { color: var(--accent-2) }
+.loop-words { position: sticky; top: 88px; z-index: 6; display: flex; flex-wrap: nowrap; gap: 0 .32em; font-family: var(--display); font-weight: 500; font-size: clamp(1.5rem, 4.6vw, 4.4rem); letter-spacing: -0.045em; line-height: 1; margin: 0 calc(var(--gutter) * -1) 70px; padding: 16px var(--gutter) 22px; pointer-events: none; background: linear-gradient(#F3F2F7 78%, rgba(243, 242, 247, 0)); overflow: hidden }
 .loop-words span { color: rgba(11, 9, 18, .1); filter: blur(1.5px); transition: color .5s, filter .5s; position: relative }
 .loop-words span.on { color: #0b0912; filter: none }
-.loop-words span.on::before, .loop-words span.on::after { content: ""; position: absolute; width: 14px; height: 14px; border: 2px solid hsl(252 70% 56%) }
+.loop-words span.on::before, .loop-words span.on::after { content: ""; position: absolute; width: 14px; height: 14px; border: 2px solid var(--accent-2) }
 .loop-words span.on::before { left: -10px; bottom: -6px; border-right: 0; border-top: 0 } .loop-words span.on::after { right: -10px; bottom: -6px; border-left: 0; border-top: 0 }
 .loop-head { display: flex; flex-direction: column; gap: 18px; max-width: 900px; margin-bottom: 40px }
 .loop-grid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, .95fr); gap: clamp(32px, 6vw, 90px); align-items: start }
 .steps { list-style: none; margin: 0; padding: 0 }
 .step { display: grid; grid-template-columns: clamp(64px, 8vw, 120px) minmax(0, 1fr); gap: 20px; padding: clamp(36px, 6vh, 60px) 0; border-top: 1px solid rgba(11, 9, 18, .1); opacity: .32; transition: opacity .5s }
 .step.on { opacity: 1 }
-.step-n { font-family: var(--display); font-weight: 600; font-size: clamp(3rem, 6vw, 5.4rem); letter-spacing: -0.06em; line-height: .85 }
-.step h3 { margin: 6px 0 10px; font-family: var(--display); font-weight: 600; font-size: clamp(1.25rem, 1.8vw, 1.6rem); letter-spacing: -0.02em; text-transform: uppercase }
+.step-n { font-family: var(--display); font-weight: 500; font-size: clamp(3rem, 6vw, 5.4rem); letter-spacing: -0.06em; line-height: .85 }
+.step h3 { margin: 6px 0 10px; font-family: var(--display); font-weight: 500; font-size: clamp(1.25rem, 1.8vw, 1.6rem); letter-spacing: -0.02em; text-transform: uppercase }
 .step p { margin: 0; font-size: 16px; line-height: 1.6; color: rgba(11, 9, 18, .72); max-width: 34rem }
-.step .step-real { margin-top: 12px; font-size: 11.5px; letter-spacing: .04em; color: hsl(252 60% 45%) }
-.loop-card-wrap { position: sticky; top: 222px }
+.step .step-real { margin-top: 12px; font-size: 11.5px; letter-spacing: .04em; color: var(--accent-2) }
+.loop-card-wrap { position: sticky; top: 222px; z-index: 1 }
 .loop-card { position: relative; height: min(calc(100svh - 250px), 700px); min-height: 420px; border-radius: 28px; overflow: hidden; background: #08060f; color: #fff; box-shadow: 0 40px 100px -40px rgba(30, 10, 80, .55); display: flex; flex-direction: column; justify-content: space-between; padding: 22px }
 .loop-film { opacity: .55 }
 .loop-card-grade { position: absolute; inset: 0; background: radial-gradient(60% 50% at 50% 50%, rgba(8, 6, 15, .2), rgba(8, 6, 15, .85)) }
 .loop-card-top, .loop-card-foot { position: relative; display: flex; justify-content: space-between; font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: rgba(255, 255, 255, .6); margin: 0 }
 .orbit { position: relative; width: 100%; height: auto; max-height: calc(100% - 70px); overflow: visible; margin: auto 0 }
 .o-ring { fill: none; stroke: rgba(255, 255, 255, .18); stroke-width: 1 }
-.o-prog { fill: none; stroke: hsl(252 92% 72%); stroke-width: 2; transition: stroke-dashoffset .8s var(--ease) }
+.o-prog { fill: none; stroke: var(--accent-2); stroke-width: 2; transition: stroke-dashoffset .8s var(--ease) }
 .o-rot { transition: transform .9s var(--ease) }
 .o-dot { fill: rgba(255, 255, 255, .35); transition: r .4s, fill .4s }
-.o-dot.on { fill: #fff; filter: drop-shadow(0 0 6px hsl(252 92% 72%)) }
+.o-dot.on { fill: #fff; filter: drop-shadow(0 0 6px var(--accent-2)) }
 .o-lab { fill: rgba(255, 255, 255, .45); font: 500 8.5px var(--mono); letter-spacing: .12em; text-anchor: middle }
 .o-lab.on { fill: #fff }
-.o-center { fill: #fff; font-family: var(--display); font-weight: 600; font-size: 34px; letter-spacing: -0.03em; text-anchor: middle }
+.o-center { fill: #fff; font-family: var(--display); font-weight: 500; font-size: 34px; letter-spacing: -0.03em; text-anchor: middle }
 @media (max-width: 900px) { .loop-grid { grid-template-columns: minmax(0, 1fr) } .loop-card-wrap { position: relative; top: 0; order: -1; max-width: 420px } .loop-words { position: static } }
 
 /* ---------- split ---------- */
@@ -103,36 +90,19 @@
 .split-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px }
 .split-card { position: relative; min-height: clamp(460px, 72vh, 760px); border-radius: 28px; overflow: hidden; background: #0a0812; display: flex; flex-direction: column; justify-content: space-between }
 .split-film { opacity: .8 }
-.split-grade { position: absolute; inset: 0; background: linear-gradient(rgba(5, 4, 9, .65), transparent 40%, rgba(5, 4, 9, .7)) }
+.split-grade { position: absolute; inset: 0; background: linear-gradient(rgba(6, 6, 8, .65), transparent 40%, rgba(6, 6, 8, .7)) }
 .split-copy { position: relative; padding: 26px; display: flex; flex-direction: column; gap: 10px; max-width: 420px }
 .split-copy .mono { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: rgba(255, 255, 255, .7) }
 .split-copy p { margin: 0; font-size: 1.15rem; line-height: 1.5 }
-.split-copy a { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: hsl(252 100% 84%) }
+.split-copy a { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: var(--accent) }
 .split-big { position: relative; font-family: var(--display); font-weight: 700; font-size: clamp(5rem, 13vw, 13rem); letter-spacing: -0.06em; line-height: .78; padding: 0 18px; margin-bottom: -.06em; color: transparent; background: linear-gradient(180deg, #fff 20%, rgba(255, 255, 255, .55)); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 10px 40px rgba(0, 0, 0, .6)) }
 @media (max-width: 760px) { .split-grid { grid-template-columns: minmax(0, 1fr) } }
 
 /* ---------- marquee ---------- */
 .h-marquee { padding: 50px 0 90px; display: flex; flex-direction: column; gap: 4px; overflow: hidden }
 .mq-item { display: inline-flex; align-items: center; gap: 28px; font-family: var(--display); font-weight: 500; font-size: clamp(1.6rem, 3vw, 2.6rem); letter-spacing: -0.03em; white-space: nowrap; color: #fff }
-.mq-item i { font-style: normal; color: hsl(252 92% 70%) }
+.mq-item i { font-style: normal; color: var(--accent-2) }
 .mq-dim .mq-item { color: rgba(255, 255, 255, .35) }
-
-/* ---------- recordings (stack) ---------- */
-.h-recs { padding: clamp(80px, 10vw, 140px) 0 0 }
-.recs-head { display: flex; flex-direction: column; gap: 20px; max-width: 900px; margin-bottom: 40px }
-.h-recs .scroll-stack { width: 100%; max-width: var(--max); margin: 0 auto; padding: 0 var(--gutter) }
-.rec-card { display: grid !important; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); gap: 28px; align-items: stretch; min-height: clamp(380px, 60vh, 560px); padding: 26px !important; border-radius: 30px !important; background: linear-gradient(160deg, #15111f, #0b0912) !important; box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .1), 0 40px 80px -40px rgba(0, 0, 0, .9) !important; color: #fff }
-.rec-info { display: flex; flex-direction: column; gap: 14px; padding: 8px }
-.rec-n { font-family: var(--display); font-weight: 600; font-size: clamp(3rem, 5vw, 4.6rem); letter-spacing: -0.06em; line-height: .85; color: hsl(252 92% 76%) }
-.rec-info h3 { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(1.5rem, 2.3vw, 2.2rem); letter-spacing: -0.03em; line-height: 1.08 }
-.rec-info p { margin: 0; color: var(--mist); line-height: 1.6 }
-.rec-tags { list-style: none; margin: auto 0 0; padding: 0; display: flex; flex-wrap: wrap; gap: 6px }
-.rec-tags li { padding: 5px 10px; border-radius: 999px; border: 1px solid rgba(255, 255, 255, .18); font-size: 10.5px; letter-spacing: .12em; text-transform: uppercase; color: var(--dim) }
-.rec-media { position: relative; border-radius: 20px; overflow: hidden; background: #000; box-shadow: inset 0 0 0 1px var(--line) }
-.rec-video { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block }
-.rec-badge { position: absolute; left: 12px; top: 12px; display: inline-flex; align-items: center; gap: 7px; padding: 5px 10px; border-radius: 999px; background: rgba(5, 4, 9, .72); font-size: 10.5px; letter-spacing: .18em }
-.rec-badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--fail); box-shadow: 0 0 8px var(--fail); animation: blink 1.4s steps(2) infinite }
-@media (max-width: 860px) { .rec-card { grid-template-columns: minmax(0, 1fr) } .rec-media { min-height: 220px } }
 
 /* ---------- who sees what ---------- */
 .h-who { padding: clamp(100px, 12vw, 170px) 0 }
@@ -144,9 +114,9 @@
 .who-k { font-size: 10.5px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint) }
 .who-s { align-self: flex-start; font-size: 10.5px; letter-spacing: .14em; text-transform: uppercase; padding: 4px 10px; border-radius: 999px; border: 1px solid currentColor }
 .who-cell p { margin: 0; color: var(--mist); line-height: 1.5; font-size: 15px }
-.who-cell.plain .who-s { color: #fff } .who-cell.cipher .who-s { color: hsl(252 95% 80%) } .who-cell.none .who-s { color: var(--faint) } .who-cell.public .who-s { color: var(--ok) } .who-cell.meta .who-s { color: var(--warn) }
+.who-cell.plain .who-s { color: #fff } .who-cell.cipher .who-s { color: var(--accent) } .who-cell.none .who-s { color: var(--faint) } .who-cell.public .who-s { color: var(--ok) } .who-cell.meta .who-s { color: var(--warn) }
 .who-cell.none p { color: var(--faint) }
-.who-hex { font-size: 12px !important; color: hsl(252 100% 82%) !important; word-break: break-all }
+.who-hex { font-size: 12px !important; color: var(--accent) !important; word-break: break-all }
 .who-note { margin: 24px 0 0; max-width: 52rem; font-size: 1.1rem; color: var(--mist) }
 @media (max-width: 1100px) { .who-grid { grid-template-columns: repeat(2, minmax(0, 1fr)) } }
 @media (max-width: 560px) { .who-grid { grid-template-columns: minmax(0, 1fr) } }
@@ -156,8 +126,8 @@
 .diff-head { display: flex; flex-direction: column; gap: 18px; margin-bottom: 36px }
 .diff-grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px }
 .diff-card { border-radius: 22px !important; padding: 22px !important; min-height: 280px; display: flex; flex-direction: column; gap: 12px; background: linear-gradient(170deg, rgba(139, 112, 255, .08), rgba(255, 255, 255, .02)) !important; box-shadow: inset 0 0 0 1px var(--line) }
-.diff-ic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: hsl(252 92% 64% / .16); color: hsl(252 100% 84%); box-shadow: inset 0 0 0 1px hsl(252 92% 70% / .35) }
-.diff-n { margin-top: auto; font-family: var(--display); font-weight: 600; font-size: 2.6rem; letter-spacing: -0.06em; line-height: 1 }
+.diff-ic { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: rgba(157, 134, 255, .16); color: var(--accent); box-shadow: inset 0 0 0 1px rgba(157, 134, 255, .35) }
+.diff-n { margin-top: auto; font-family: var(--display); font-weight: 500; font-size: 2.6rem; letter-spacing: -0.06em; line-height: 1 }
 .diff-card h3 { margin: 0; font-family: var(--display); font-weight: 500; font-size: 1.2rem; letter-spacing: -0.02em }
 .diff-card p { margin: 0; color: var(--dim); font-size: 14px; line-height: 1.55 }
 @media (max-width: 1200px) { .diff-grid { grid-template-columns: repeat(3, minmax(0, 1fr)) } }
@@ -166,22 +136,26 @@
 /* ---------- built ---------- */
 .h-built { position: relative; min-height: 110svh; overflow: hidden; display: flex; align-items: center }
 .built-film { opacity: .75 }
-.built-grade { position: absolute; inset: 0; background: linear-gradient(var(--ink), transparent 25%, transparent 70%, var(--ink)), linear-gradient(90deg, rgba(5, 4, 9, .8), transparent 70%) }
+.built-grade { position: absolute; inset: 0; background: linear-gradient(var(--ink), transparent 25%, transparent 70%, var(--ink)), linear-gradient(90deg, rgba(6, 6, 8, .8), transparent 70%) }
 .built-in { position: relative; display: flex; flex-direction: column; gap: 40px; padding: 120px var(--gutter) }
 .built-h { margin: 0; font-family: var(--display); font-weight: 700; font-size: clamp(2.8rem, 7.4vw, 7rem); letter-spacing: -0.045em; line-height: .9; text-transform: uppercase }
 .built-lines { display: flex; flex-direction: column; gap: 4px }
-.built-line { margin: 0; font-family: var(--display); font-weight: 600; font-size: clamp(1.8rem, 4.4vw, 4rem); letter-spacing: -0.035em; line-height: 1.02; text-transform: uppercase; color: rgba(255, 255, 255, .95) }
+.built-line { margin: 0; font-family: var(--display); font-weight: 500; font-size: clamp(1.8rem, 4.4vw, 4rem); letter-spacing: -0.035em; line-height: 1.02; text-transform: uppercase; color: rgba(255, 255, 255, .95) }
 
 /* ---------- final ---------- */
 .h-final { position: relative; min-height: 100svh; display: flex; align-items: center; overflow: hidden; padding: 140px 0 }
 .final-film { opacity: .7 }
-.final-grade { position: absolute; inset: 0; background: radial-gradient(60% 60% at 50% 50%, rgba(5, 4, 9, .25), rgba(5, 4, 9, .92) 75%), linear-gradient(var(--ink), transparent 25%, transparent 75%, var(--ink)) }
+.final-grade { position: absolute; inset: 0; background: radial-gradient(60% 60% at 50% 50%, rgba(6, 6, 8, .25), rgba(6, 6, 8, .92) 75%), linear-gradient(var(--ink), transparent 25%, transparent 75%, var(--ink)) }
 .final-in { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 26px }
 .final-h { max-width: 14ch }
 .final-cta { display: flex; flex-wrap: wrap; justify-content: center; gap: 12px; align-items: center }
 .sb { font: 600 15px var(--sans) }
 
 /* reduced motion: films hold still, pinned scenes show their end state */
-html[data-motion="reduce"] .trust-end { opacity: 1 }
 
-@media (max-width: 760px) { .hero-film { object-position: 78% 40%; opacity: 1 } .hero-grade { background: linear-gradient(rgba(5, 4, 9, .2), rgba(5, 4, 9, .55) 45%, rgba(5, 4, 9, .95) 80%) } }
+@media (max-width: 760px) { .hero-film { object-position: 78% 40%; opacity: 1 } .hero-grade { background: linear-gradient(rgba(6, 6, 8, .2), rgba(6, 6, 8, .55) 45%, rgba(6, 6, 8, .95) 80%) } }
+
+.hero-h .hw { display: inline-block; margin-right: .24em; will-change: transform }
+.hero-h .hw.accent { margin-right: 0 }
+
+button.star { border: 0; cursor: pointer; font: inherit }
