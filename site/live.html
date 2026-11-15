@@ -4,85 +4,53 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Live — Veil</title>
-<meta name="description" content="Send a real message through Veil and watch every request, hardware proof, encryption step and signature as it happens.">
+<meta name="description" content="Watch one private message cross the internet: checked against NEAR, proven by Intel and NVIDIA hardware, locked, carried blind by the relay, and signed. A real run, visualised.">
 <meta name="theme-color" content="#060608">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link rel="preconnect" href="https://api.fontshare.com" crossorigin><link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
 <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet">
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 </head>
-<body>
+<body class="live-page">
 <main id="main">
-<section class="live-hero" aria-labelledby="live-h">
-  <video class="page-film" src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260702_051048_5ef213b5-26db-4da8-b604-7ef823760b6b.mp4" autoplay muted loop playsinline preload="auto" aria-hidden="true"></video>
-  <div class="page-film-grade" aria-hidden="true"></div>
-  <div class="fade-b" aria-hidden="true"></div>
-  <div class="wrap live-hero-in">
-    <span class="eyebrow" data-decrypt>LIVE / ONE MESSAGE, EVERY STEP</span>
-    <h1 id="live-h" class="display" data-split>Watch a message<br><span class="veiled">cross the wire.</span></h1>
-    <p class="lede" data-in=".2">Send a real question through the live relay. Your browser does every check itself, and each request, proof and signature appears below as it happens.</p>
-  </div>
-</section>
+<section class="theatre" id="theatre" aria-label="Visualisation of one message">
+  <canvas id="world" aria-hidden="true"></canvas>
+  <div class="t-shade" aria-hidden="true"></div>
 
-<section class="wrap console-wrap" aria-label="Run the pipeline">
-  <form class="controls glass" id="controls">
-    <label class="eyebrow" for="q">Your question for Harbor &amp; Finch</label>
-    <div class="q-row">
-      <input id="q" type="text" maxlength="300" required autocomplete="off" value="Can you tell me how a first consultation works?">
-      <button class="btn" type="submit" id="go">Send for real</button>
-      <button class="btn ghost" type="button" id="replay">Replay a recorded run</button>
-    </div>
-    <div class="ctl-row">
-      <div class="status mono" id="status" role="status" aria-live="polite">Ready. Nothing has been sent.</div>
-      <div class="ctl-right">
-        <label class="mono speed-l" for="speed">Replay speed</label>
-        <select id="speed" class="speed"><option value="0.5">0.5×</option><option value="1" selected>1×</option><option value="2">2×</option><option value="4">4×</option></select>
+  <div class="t-caption" aria-live="polite">
+    <span class="t-step mono" id="t-step">One message, start to finish</span>
+    <h1 class="t-title" id="t-title">Watch a private question <span class="accent">cross the internet.</span></h1>
+    <p class="t-body" id="t-body">A real run, played back: every check your browser makes, every hop your words take, and what each party could see. It starts in a moment.</p>
+    <p class="t-tech mono" id="t-tech"></p>
+  </div>
+
+  <div class="t-dock">
+    <div class="t-controls glass">
+      <button class="star" type="button" id="replay"><span>Replay the recorded run</span></button>
+      <form class="t-ask" id="ask" autocomplete="off">
+        <label class="sr-only" for="q">Ask your own question</label>
+        <input id="q" maxlength="240" placeholder="Or ask your own question…" required>
+        <button class="btn sm" type="submit" id="go">Send for real</button>
+      </form>
+      <div class="t-mini">
         <button class="chip" type="button" id="pause" disabled>Pause</button>
-        <button class="chip" type="button" id="skip" disabled>Skip to end</button>
+        <button class="chip" type="button" id="speed" aria-label="Playback speed">1×</button>
+        <button class="chip" type="button" id="log-btn" aria-expanded="false" aria-controls="t-log">Technical log</button>
       </div>
     </div>
-    <p class="fine mono">A live run uses the demo site's NEAR AI credit, so the relay allows 20 requests a minute per visitor. The first request can take up to a minute if the free relay is asleep.</p>
-  </form>
-
-  <div class="stage-rail" id="rail" aria-label="Steps"></div>
-
-  <div class="board">
-    <div class="diagram glass" aria-label="Who talks to whom">
-      <div class="lens" role="group" aria-label="View as">
-        <span class="eyebrow">View as</span>
-        <div class="lens-chips" id="lens"></div>
-      </div>
-      <svg id="net" viewBox="0 30 1000 620" role="img" aria-labelledby="net-t net-d"><title id="net-t">Network of parties in one Veil request</title><desc id="net-d">Your browser talks to the site relay, which forwards to the NEAR AI gateway and the model enclave. Your browser also queries NEAR testnet and Intel collateral, and the relay forwards GPU evidence to NVIDIA.</desc></svg>
-      <p class="lens-note mono" id="lens-note"></p>
-    </div>
-
-    <div class="log glass" aria-label="Event log">
-      <div class="log-head">
-        <span class="eyebrow">Event log</span>
-        <div class="log-tools">
-          <div class="filters" id="filters" role="group" aria-label="Filter the log"></div>
-          <button class="chip" type="button" id="dl-log" disabled>Download log</button>
-        </div>
-      </div>
-      <ol class="log-list mono" id="log" aria-live="polite" aria-relevant="additions"></ol>
-      <p class="log-empty" id="log-empty">Press <b>Send for real</b> to run it from your browser, or <b>Replay a recorded run</b> to watch one instantly.</p>
-    </div>
+    <ol class="t-rail" id="t-rail" aria-label="Chapters"></ol>
   </div>
 
-  <div class="result" id="result" hidden>
-    <div class="answer glass panel">
-      <span class="eyebrow">The answer, decrypted in your browser</span>
-      <p id="answer" class="answer-text"></p>
-    </div>
-    <div class="proof glass panel">
-      <span class="eyebrow">Proof</span>
-      <p id="proof-line" class="proof-line"></p>
-      <div class="proof-btns"><button class="btn sm" type="button" id="dl-receipt">Download the receipt</button><a class="btn sm ghost" href="./docs.html#receipts">How to verify it</a></div>
-    </div>
-    <div class="relay-saw glass panel">
-      <span class="eyebrow">Everything the relay received</span>
-      <pre id="relay-saw" class="mono"></pre>
-    </div>
+  <aside class="t-log glass" id="t-log" hidden aria-label="Technical log">
+    <div class="t-log-head"><span class="eyebrow">Every real event, as it happened</span><button class="chip" type="button" id="dl-log">Download</button></div>
+    <ol class="t-log-list mono" id="t-log-list"></ol>
+  </aside>
+
+  <div class="t-end glass" id="t-end" hidden role="dialog" aria-labelledby="t-end-h">
+    <span class="eyebrow" id="t-end-k">Done</span>
+    <h2 id="t-end-h" class="t-end-h">Answered privately, <span class="accent">and proven.</span></h2>
+    <div class="t-end-stats" id="t-end-stats"></div>
+    <div class="t-end-btns"><button class="btn" type="button" id="again">Watch again</button><button class="btn ghost" type="button" id="own">Ask your own question</button><button class="btn ghost" type="button" id="dl-receipt">Download the receipt</button></div>
   </div>
 </section>
 </main>

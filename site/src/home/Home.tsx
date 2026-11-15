@@ -211,7 +211,7 @@ function Split() {
     if (reduced) return;
     gsap.utils.toArray<HTMLElement>(".split-card").forEach((c, i) => {
       gsap.fromTo(c, { y: 120 + i * 60, opacity: 0.3 }, { y: 0, opacity: 1, ease: "none", scrollTrigger: { trigger: c, start: "top bottom", end: "top 40%", scrub: true } });
-      gsap.fromTo(c.querySelector(".split-big"), { yPercent: 40 }, { yPercent: 0, ease: "none", scrollTrigger: { trigger: c, start: "top bottom", end: "bottom 60%", scrub: true } });
+      gsap.fromTo(c.querySelector(".split-big"), { yPercent: 30, opacity: 0 }, { yPercent: 0, opacity: 1, ease: "none", scrollTrigger: { trigger: c, start: "top 85%", end: "top 25%", scrub: true } });
     });
   }, { scope: ref });
   return (
@@ -220,14 +220,14 @@ function Split() {
         <article className="split-card">
           <Film src={FILMS.globe} className="split-film" />
           <div className="split-grade" />
-          <div className="split-copy"><span className="mono">For visitors</span><p>Ask freely. Check the hardware, the rules and the receipt yourself.</p><a href="./docs.html#visitors">What the checks mean <HugeiconsIcon icon={ArrowRight01Icon} size={14} /></a></div>
-          <span className="split-big">ASK</span>
+          <span className="split-k mono">For visitors</span>
+          <div className="split-foot"><span className="split-big">Ask</span><div className="split-copy"><p>Ask anything. Then check the hardware, the rules and the signed receipt yourself.</p><a className="split-link" href="./docs.html#visitors">What the checks mean <HugeiconsIcon icon={ArrowRight01Icon} size={15} /></a></div></div>
         </article>
         <article className="split-card">
           <Film src={FILMS.fan} className="split-film" />
           <div className="split-grade" />
-          <div className="split-copy"><span className="mono">For site owners</span><p>One script tag. Rules on NEAR. A relay you can host for free.</p><a href="./docs.html#owners">Add it to your site <HugeiconsIcon icon={ArrowRight01Icon} size={14} /></a></div>
-          <span className="split-big">BUILD</span>
+          <span className="split-k mono">For site owners</span>
+          <div className="split-foot"><span className="split-big">Build</span><div className="split-copy"><p>One script tag, rules fingerprinted on NEAR, and a relay you can host for free.</p><a className="split-link" href="./docs.html#owners">Add it to your site <HugeiconsIcon icon={ArrowRight01Icon} size={15} /></a></div></div>
         </article>
       </div>
     </section>

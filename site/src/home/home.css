@@ -87,16 +87,19 @@
 
 /* ---------- split ---------- */
 .h-split { padding: clamp(80px, 10vw, 140px) 0 40px }
-.split-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px }
-.split-card { position: relative; min-height: clamp(460px, 72vh, 760px); border-radius: 28px; overflow: hidden; background: #0a0812; display: flex; flex-direction: column; justify-content: space-between }
-.split-film { opacity: .8 }
-.split-grade { position: absolute; inset: 0; background: linear-gradient(rgba(6, 6, 8, .65), transparent 40%, rgba(6, 6, 8, .7)) }
-.split-copy { position: relative; padding: 26px; display: flex; flex-direction: column; gap: 10px; max-width: 420px }
-.split-copy .mono { font-size: 11px; letter-spacing: .18em; text-transform: uppercase; color: rgba(255, 255, 255, .7) }
-.split-copy p { margin: 0; font-size: 1.15rem; line-height: 1.5 }
-.split-copy a { display: inline-flex; align-items: center; gap: 6px; font-weight: 500; color: var(--accent) }
-.split-big { position: relative; font-family: var(--display); font-weight: 700; font-size: clamp(5rem, 13vw, 13rem); letter-spacing: -0.06em; line-height: .78; padding: 0 18px; margin-bottom: -.06em; color: transparent; background: linear-gradient(180deg, #fff 20%, rgba(255, 255, 255, .55)); -webkit-background-clip: text; background-clip: text; filter: drop-shadow(0 10px 40px rgba(0, 0, 0, .6)) }
-@media (max-width: 760px) { .split-grid { grid-template-columns: minmax(0, 1fr) } }
+.split-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px }
+.split-card { position: relative; min-height: clamp(520px, 78vh, 820px); border-radius: 30px; overflow: hidden; background: #0a0a0e; display: flex; flex-direction: column; justify-content: space-between; padding: clamp(22px, 2.4vw, 34px); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .06) }
+.split-film { opacity: .85; transition: transform 1.6s var(--ease) }
+.split-card:hover .split-film { transform: scale(1.05) }
+.split-grade { position: absolute; inset: 0; background: linear-gradient(rgba(6, 6, 8, .45), transparent 30%, transparent 45%, rgba(6, 6, 8, .92)) }
+.split-k { position: relative; align-self: flex-start; padding: 7px 12px; border-radius: 999px; background: rgba(6, 6, 8, .55); backdrop-filter: blur(10px); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12); font-size: 11px; letter-spacing: .16em; text-transform: uppercase; color: rgba(242, 242, 245, .85) }
+.split-foot { position: relative; display: flex; flex-direction: column; gap: 18px }
+.split-big { display: block; font-family: var(--display); font-weight: 500; font-size: clamp(5rem, 10vw, 10.5rem); letter-spacing: -0.06em; line-height: .9; padding-bottom: .04em; color: #fff }
+.split-copy { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 14px 28px; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, .16) }
+.split-copy p { margin: 0; max-width: 30rem; font-size: 1.08rem; line-height: 1.55; color: var(--mist) }
+.split-link { display: inline-flex; align-items: center; gap: 8px; height: 42px; padding: 0 18px; border-radius: 999px; background: #fff; color: #08080A; font-weight: 500; font-size: 14px; white-space: nowrap; transition: box-shadow .3s }
+.split-link:hover { box-shadow: 0 0 0 6px rgba(255, 255, 255, .1) }
+@media (max-width: 760px) { .split-grid { grid-template-columns: minmax(0, 1fr) } .split-card { min-height: 480px } }
 
 /* ---------- marquee ---------- */
 .h-marquee { padding: 50px 0 90px; display: flex; flex-direction: column; gap: 4px; overflow: hidden }
