@@ -6,6 +6,17 @@ const MOTION_KEY = "veil-motion";
 const stored = (() => { try { return localStorage.getItem(MOTION_KEY); } catch { return null; } })();
 export const reduced = stored === "reduce";
 document.documentElement.dataset.motion = reduced ? "reduce" : "full";
+// Every animation library on the page (ReactBits, GSAP) asks the browser about prefers-reduced-motion. Answer from this site's
+// own switch instead, so the page moves unless the visitor turned motion off here.
+if (typeof window.matchMedia === "function") {
+  const native = window.matchMedia.bind(window);
+  window.matchMedia = (q: string): MediaQueryList => {
+    if (!/prefers-reduced-motion/.test(q)) return native(q);
+    const matches = /reduce/.test(q) ? reduced : !reduced;
+    const noop = () => {};
+    return { matches, media: q, onchange: null, addListener: noop, removeListener: noop, addEventListener: noop, removeEventListener: noop, dispatchEvent: () => false } as unknown as MediaQueryList;
+  };
+}
 export function setMotion(reduce: boolean) {
   try { localStorage.setItem(MOTION_KEY, reduce ? "reduce" : "full"); } catch { /* storage blocked: applies to this page only */ }
   document.documentElement.dataset.motion = reduce ? "reduce" : "full";

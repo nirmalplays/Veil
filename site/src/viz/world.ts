@@ -24,17 +24,17 @@ export const POS: Record<Station, THREE.Vector3> = {
   relay: new THREE.Vector3(-3.4, 0, 0),
   gateway: new THREE.Vector3(2.6, 0, 0),
   enclave: new THREE.Vector3(9.6, 0, 0),
-  near: new THREE.Vector3(-6.8, 4.4, -2.2),
-  intel: new THREE.Vector3(1.2, 5.4, -3.4),
-  nvidia: new THREE.Vector3(5.6, 5.4, -3.4),
+  near: new THREE.Vector3(-2.6, 5.3, -3.4),
+  intel: new THREE.Vector3(3.0, 5.6, -3.4),
+  nvidia: new THREE.Vector3(7.2, 5.6, -3.4),
 };
 const VIEWS: Record<Exclude<View, "path">, { pos: [number, number, number]; look: [number, number, number] }> = {
-  overview: { pos: [0, 4.2, 19.5], look: [0, 1.2, 0] },
+  overview: { pos: [0.6, 4.4, 21.5], look: [0.6, 1.3, 0] },
   you: { pos: [-13.2, 1.3, 9.4], look: [-12.4, 0.7, 0] },
-  near: { pos: [-9.6, 4.8, 8.6], look: [-8.4, 3.4, -2] },
+  near: { pos: [-5.4, 5.6, 8.4], look: [-3.6, 4.4, -3] },
   relay: { pos: [-7.6, 1.8, 12.5], look: [-6.4, 0.6, 0] },
   enclave: { pos: [5.2, 2.4, 14.5], look: [7.0, 1.2, 0] },
-  sky: { pos: [1.5, 4.4, 10.5], look: [2.8, 3.6, -2] },
+  sky: { pos: [3.0, 4.6, 11], look: [4.4, 3.8, -2] },
 };
 
 /** Soft round glow sprite texture. */
@@ -136,7 +136,8 @@ export class World {
     this.renderer.setSize(w, h, false); this.composer.setSize(w, h); this.labels.setSize(w, h);
     this.camera.aspect = w / h;
     // keep the whole route in frame on narrow screens
-    this.camera.fov = w / h < 1 ? 62 : w / h < 1.4 ? 50 : 42;
+    this.camera.fov = w / h < 1 ? 62 : w / h < 1.4 ? 50 : 44;
+    if (w / h >= 1.2) this.camera.setViewOffset(w, h, -w * 0.065, -h * 0.085, w, h); else this.camera.clearViewOffset();
     this.camera.updateProjectionMatrix();
   }
 
