@@ -111,10 +111,3 @@ button.star { border: 0; cursor: pointer; font: inherit }
 .t-caption { width: min(470px, calc(100% - var(--gutter) * 2)) }
 .t-caption::before { content: ""; position: absolute; left: calc(var(--gutter) * -1 - 40px); top: -140px; right: -120px; bottom: -60px; z-index: -1; background: radial-gradient(90% 85% at 20% 40%, rgba(6, 6, 8, .92), rgba(6, 6, 8, .6) 55%, transparent 80%); pointer-events: none }
 .t-title { font-size: clamp(2rem, 3vw, 3.1rem) }
-
-.t-pay { margin: -4px 0 0 6px; font-size: 11.5px; letter-spacing: .02em; color: var(--dim) }
-.t-pay:empty { display: none }
-.chip.wallet { border-color: rgba(166, 235, 203, .4); color: var(--ok) }
-.chip.wallet.on { background: rgba(166, 235, 203, .12); color: #fff }
-/* the wallet picker sits above the 3D scene */
-#near-wallet-selector-modal, .nws-modal-wrapper { z-index: 100 !important }

@@ -28,24 +28,11 @@ export interface ChatResult { id: string; text: string; raw: unknown }
 export class NearAI {
   constructor(private apiKey: string, private baseUrl = BASE_URL, private f: typeof fetch = (...a) => fetch(...a)) {}
 
-  /**
-   * A relay can charge per question: it answers 402 with where and how much to pay. If set, this is asked to pay and return the payment
-   * header ("<tx hash>:<account>"); the request is then retried once with it. Return null to give up.
-   */
-  onPaymentRequired?: (payment: any) => Promise<string | null>;
-
   private async reqRaw(path: string, init: RequestInit = {}): Promise<string> {
-    const go = (extra: Record<string, string> = {}) => this.f(this.baseUrl + path, {
+    const r = await this.f(this.baseUrl + path, {
       ...init,
-      headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json", ...(init.headers ?? {}), ...extra },
+      headers: { Authorization: `Bearer ${this.apiKey}`, "Content-Type": "application/json", ...(init.headers ?? {}) },
     });
-    let r = await go();
-    if (r.status === 402 && this.onPaymentRequired) {
-      const j = await r.json().catch(() => ({} as any));
-      const header = await this.onPaymentRequired(j.payment ?? j);
-      if (!header) throw new Error(`payment required: ${j.error ?? "no payment made"}`);
-      r = await go({ "X-Veil-Payment": header });
-    }
     if (!r.ok) throw new Error(`NEAR AI ${path} -> ${r.status} ${await r.text()}`);
     return r.text();
   }

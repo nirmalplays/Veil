@@ -14,7 +14,6 @@ import { fileURLToPath } from "node:url";
 import { policyHash, type Policy } from "../client/src/policy.js";
 import { sealKnowledgeBase } from "../client/src/seal.js";
 import { verifyModelAttestation } from "../client/src/verify.js";
-import { PayGate, payConfigFromEnv } from "./pay.js";
 
 export interface Site {
   siteId: string; title: string; greeting: string;
@@ -45,9 +44,6 @@ const readSites = (): Site[] => {
   return out;
 };
 const PORT = Number(process.env.PORT ?? 8790);
-// Optional pay-per-question (see pay.ts): set PAY_TO to the NEAR account that receives payments.
-const payCfg = payConfigFromEnv(process.env);
-const PAY = payCfg ? new PayGate(payCfg) : null;
 const NO_SITE = Symbol("no site");
 
 // ---- sealed knowledge bases ----
@@ -118,7 +114,7 @@ createServer(async (req, res) => {
     if (req.method === "OPTIONS") {
       res.writeHead(originOk ? 204 : 403, { ...(origin && originOk ? { "Access-Control-Allow-Origin": origin, Vary: "Origin" } : {}),
         "Access-Control-Allow-Methods": "GET, POST, OPTIONS", "Access-Control-Max-Age": "600",
-        "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Signing-Algo, X-Client-Pub-Key, X-Model-Pub-Key, X-Encryption-Version, x-no-aliasing, X-Veil-Payment" }).end();
+        "Access-Control-Allow-Headers": "Authorization, Content-Type, X-Signing-Algo, X-Client-Pub-Key, X-Model-Pub-Key, X-Encryption-Version, x-no-aliasing" }).end();
       return;
     }
     // Proof of where this relay runs. Inside a dstack TEE (Intel TDX confidential VM) the guest agent signs a fresh Intel TDX quote that
@@ -138,9 +134,6 @@ createServer(async (req, res) => {
     const url = rawUrl;
     const ip = req.socket.remoteAddress ?? "?";
 
-    if (req.method === "GET" && url.pathname === "/pay") {
-      return PAY ? send(200, JSON.stringify({ enabled: true, ...PAY.info(ip) })) : send(200, JSON.stringify({ enabled: false }));
-    }
     if (req.method === "GET" && url.pathname === "/config") {
       const { allowedOrigins, maxTokens, ratePerMinute, kb, ...pub } = site; void allowedOrigins; void ratePerMinute;
       return send(200, JSON.stringify({ ...pub, maxTokens: MAX, hasKb: !!kb }));
@@ -191,22 +184,9 @@ createServer(async (req, res) => {
       if (req.headers["x-encryption-version"] !== "2" || !req.headers["x-client-pub-key"] || !req.headers["x-model-pub-key"]) return err(400, "end-to-end encryption required");
       if (j.stream === true) return err(400, "streaming not supported");
       if (typeof j.max_tokens !== "number" || j.max_tokens > MAX) return err(400, `max_tokens required and at most ${MAX}`);
-      // pay per question: a few free each day, then a verified NEAR payment per question
-      let paid: string | null = null, usedFree = false;
-      if (PAY) {
-        const ph = req.headers["x-veil-payment"];
-        if (typeof ph === "string" && ph) {
-          const v = await PAY.verify(ph);
-          if (!v.ok) return send(402, JSON.stringify({ error: `payment not accepted: ${v.reason}`, payment: PAY.info(ip) }));
-          paid = v.hash;
-        } else if (PAY.takeFree(ip)) usedFree = true;
-        else return send(402, JSON.stringify({ error: "payment required", payment: PAY.info(ip) }));
-      }
       const h: Record<string, string> = { Authorization: `Bearer ${KEY}`, "Content-Type": "application/json" };
       for (const k of ["x-signing-algo", "x-client-pub-key", "x-model-pub-key", "x-encryption-version", "x-no-aliasing"]) { const v = req.headers[k]; if (typeof v === "string") h[k] = v; }
       const r = await fetch(UPSTREAM + "/v1/chat/completions", { method: "POST", headers: h, body });   // body forwarded byte for byte
-      // a question that got no answer costs nothing: give the free question or the payment back
-      if (!r.ok) { if (paid) PAY?.release(paid); if (usedFree) PAY?.giveBackFree(ip); }
       return send(r.status, await r.text());
     }
     if (req.method === "POST" && url.pathname === "/v1/embeddings") {

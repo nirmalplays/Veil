@@ -8,7 +8,7 @@ COPY widget/package.json widget/
 RUN npm --prefix client ci --omit=dev && npm --prefix widget install --omit=dev && npm --prefix widget install --no-save tsx
 COPY client/src client/src
 COPY client/tsconfig.json client/
-COPY widget/relay.ts widget/pay.ts widget/
+COPY widget/relay.ts widget/
 COPY widget/demo/site.json widget/demo/site.json
 ENV PORT=8790
 EXPOSE 8790

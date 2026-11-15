@@ -15,7 +15,6 @@ export interface FlowOptions {
   relay: string; question: string; emit: (e: FlowEvent) => void;
   f?: typeof fetch; rpcs?: string[];
   /** Called while waiting on a slow step, so the UI can show a ticking timer. */ onWait?: (label: string | null) => void;
-  /** Called when the relay asks for payment (free questions used up). Returns the payment header, or null to stop. */ pay?: (payment: any) => Promise<string | null>;
 }
 export interface FlowResult { ok: boolean; answer?: string; receipt?: Receipt; error?: string }
 
@@ -131,17 +130,7 @@ export async function runFlow(o: FlowOptions): Promise<FlowResult> {
       data: short(requestBody, 140), visibleTo: ["you", "relay", "gateway", "enclave"] });
     const s7 = Date.now();
     const chatHeaders: Record<string, string> = { "Content-Type": "application/json", "X-Signing-Algo": "ed25519", "X-Client-Pub-Key": client.pubHex, "X-Model-Pub-Key": full.publicKey, "X-Encryption-Version": "2", "x-no-aliasing": "true" };
-    let resp = await wait("The enclave is answering", f(`${relay}/v1/chat/completions`, { method: "POST", body: requestBody, headers: chatHeaders }));
-    if (resp.status === 402) {
-      // the site charges per question once the free ones are used: pay in NEAR from the visitor's wallet, then send again
-      const pj = await resp.json().catch(() => ({} as any)), info = pj.payment ?? {};
-      emit({ kind: "warn", stage, actor: "relay", path: ["relay", "you"], text: `Free questions used up: this site charges ${info.priceNear ?? "?"} NEAR per question`, detail: `Payments go to ${info.payTo} on NEAR ${info.network}. The relay checks the transfer on NEAR itself before it forwards anything.` });
-      const header = o.pay ? await wait("Waiting for your wallet", o.pay(info)) : null;
-      if (!header) throw new Error("payment required, and no payment was made");
-      const [txh, who] = header.split(":");
-      emit({ kind: "ok", stage, actor: "near", path: ["you", "near"], text: `Paid ${info.priceNear} NEAR from ${who}`, data: `transaction ${txh}\nto ${info.payTo}`, visibleTo: ["you", "relay", "near"] });
-      resp = await wait("The enclave is answering", f(`${relay}/v1/chat/completions`, { method: "POST", body: requestBody, headers: { ...chatHeaders, "X-Veil-Payment": header } }));
-    }
+    const resp = await wait("The enclave is answering", f(`${relay}/v1/chat/completions`, { method: "POST", body: requestBody, headers: chatHeaders }));
     const responseBody = await resp.text();
     if (!resp.ok) throw new Error(`the relay answered ${resp.status}: ${responseBody.slice(0, 160)}`);
     const j = JSON.parse(responseBody);

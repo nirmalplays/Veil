@@ -5,5 +5,4 @@ const from = fileURLToPath(new URL("../../widget/dist/veil-widget.js", import.me
 const to = fileURLToPath(new URL("../public/veil-widget.js", import.meta.url));
 if (!existsSync(from)) { console.error("widget/dist/veil-widget.js is missing: run `npm --prefix ../widget run build` first"); process.exit(1); }
 copyFileSync(from, to);
-copyFileSync(fileURLToPath(new URL("../../widget/dist/veil-wallet.js", import.meta.url)), fileURLToPath(new URL("../public/veil-wallet.js", import.meta.url)));
-console.log("copied veil-widget.js and veil-wallet.js into public/");
+console.log("copied veil-widget.js into public/");
