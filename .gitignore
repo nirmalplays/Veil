@@ -13,3 +13,6 @@ web/public/veil-widget.js
 
 # NEAR testnet keys created by scripts/create-wallets.mjs
 wallets.local.json
+
+# demo video exports (large files)
+demo-video/
